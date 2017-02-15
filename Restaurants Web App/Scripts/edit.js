@@ -3,11 +3,13 @@
 });
 
 
+// Changes margin of the "employees" table depending on height of "header" table.
 function resetHeaderMargin() {
     $("#employees").css("margin-top", $("#header").css("height"));
 }
 
 
+// Contains methods and variables that are responsible for changing UI while editing.
 var EditManager = (function () {
 
     var edit = false;
@@ -20,6 +22,30 @@ var EditManager = (function () {
     }
 
 
+    // It must be invoked if user clicks on the "Add" button.
+    // Adds a new row with input fields.
+    EditManager.addNew = function (button) {
+        if (edit) {
+            return;
+        }
+
+        var $employeesTable = $("#employees").children();
+        $employeesTable.append("<tr>" + $("#hiddenEditRow").html() + "</tr>");
+
+        var $row = $employeesTable.children().last();
+        Row.selectRow($row);
+        $row.css("background", COLORS.TR.EDIT_COLOR);
+
+        edit = true;
+
+        $("html, body").animate({
+            scrollTop: $row.offset().top
+        }, 500);
+    }
+
+
+    // This method must be invoked every time when a user begins editing information.
+    // Editing of information can be started by clicking on the "Add" or "Edit" buttons.
     EditManager.startEdit = function (button) {
         if (edit) {
             return;
@@ -62,6 +88,8 @@ var EditManager = (function () {
     }
 
 
+    // This method must be invoked every time when a user finishes edit information.
+    // It's when the "Save" or "Cancel" buttons are clicked. 
     EditManager.stopEdit = function (button) {
         if (!edit) {
             return;
@@ -69,6 +97,8 @@ var EditManager = (function () {
 
         var $row = Row.getCurrentRow();
 
+        // If the "Save" button is clicked, then entered information must be validated and then sent to a server.
+        // If incorrect information has been entered, then nothing will be sent.
         if (button.value == "Сохранить") {
             var $rowChildren = $row.children();
             var $lastNameInput = $rowChildren.eq(1).children().first(),
@@ -100,6 +130,7 @@ var EditManager = (function () {
                 }
             }
 
+            // Id "-1" is assigned to a new employee. 
             sendUpdatedEmployee({
                 Id: $rowChildren.eq(0).text() || -1,
                 FirstName: $firstNameInput.val(),
@@ -118,6 +149,11 @@ var EditManager = (function () {
 
         edit = false;
 
+
+        // If a user edits an existing employee, then necessary content of a row has been already created.
+        // Therefore the old content returns to the current row. It will be updated when a response from a server comes.
+        // Otherwise the current row will be copied from another one. 
+        // All text content will be removed and replaced with information from response.
         if (originalContent) {
 
             $row.html(originalContent);
@@ -144,26 +180,6 @@ var EditManager = (function () {
         }
         
         Row.releaseRow($row);
-    }
-
-
-    EditManager.addNew = function (button) {
-        if (edit) {
-            return;
-        }
-
-        var $employeesTable = $("#employees").children();
-        $employeesTable.append("<tr>" + $("#hiddenEditRow").html() + "</tr>");
-
-        var $row = $employeesTable.children().last();
-        Row.selectRow($row);
-        $row.css("background", COLORS.TR.EDIT_COLOR);
-
-        edit = true;
-
-        $("html, body").animate({
-            scrollTop: $row.offset().top
-        }, 500);
     }
 
 
@@ -208,6 +224,7 @@ function setCorrectCase(input) {
 }
 
 
+// Contains a method that shows the error bar and a method that hides the error bar.
 var ErrorBar = (function () {
 
     const BAR_HEIGHT = 50;
@@ -316,6 +333,7 @@ function placeDataIntoRow($row, data) {
 }
 
 
+// Saves a selected row. 
 var Row = (function () {
 
     var $currentRow = null;

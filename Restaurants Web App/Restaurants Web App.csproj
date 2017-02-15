@@ -108,7 +108,7 @@
     </Content>
     <Content Include="Content\css\styles.css" />
     <Content Include="Global.asax" />
-    <Content Include="Scripts\script.js" />
+    <Content Include="Scripts\edit.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
