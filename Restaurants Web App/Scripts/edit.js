@@ -5,7 +5,7 @@
 
 // Changes margin of the "employees" table depending on height of "header" table.
 function resetHeaderMargin() {
-    $("#employees").css("margin-top", $("#header").css("height"));
+    $(Constants.Tables.EMPLOYEES).css("margin-top", $(Constants.Tables.HEADER).css("height"));
 }
 
 
@@ -29,12 +29,12 @@ var EditManager = (function () {
             return;
         }
 
-        var $employeesTable = $("#employees").children();
-        $employeesTable.append("<tr>" + $("#hiddenEditRow").html() + "</tr>");
+        var $employeesTable = $(Constants.Tables.EMPLOYEES).children();
+        $employeesTable.append("<tr>" + $(Constants.Tables.HIDDEN_EDIT_ROW).html() + "</tr>");
 
         var $row = $employeesTable.children().last();
         Row.selectRow($row);
-        $row.css("background", COLORS.TR.EDIT_COLOR);
+        $row.css("background", Constants.Colors.EDIT_TR_COLOR);
 
         edit = true;
 
@@ -53,7 +53,7 @@ var EditManager = (function () {
 
         var $row = Row.getCurrentRow();
 
-        $row.css("background", COLORS.TR.EDIT_COLOR);
+        $row.css("background", Constants.Colors.EDIT_TR_COLOR);
 
         var personalData = [];
         for (var i = 0; i < 7; i++) {
@@ -67,7 +67,7 @@ var EditManager = (function () {
         }
 
         originalContent = $row.html();
-        $row.html($("#hiddenEditRow").html());
+        $row.html($(Constants.Tables.HIDDEN_EDIT_ROW).html());
 
         $rowChildren = $row.children();
         $rowChildren.first().html(personalData[0]);
@@ -99,7 +99,7 @@ var EditManager = (function () {
 
         // If the "Save" button is clicked, then entered information must be validated and then sent to a server.
         // If incorrect information has been entered, then nothing will be sent.
-        if (button.value == "Сохранить") {
+        if (button.value == Constants.Buttons.SAVE) {
             var $rowChildren = $row.children();
             var $lastNameInput = $rowChildren.eq(1).children().first(),
                 $firstNameInput = $rowChildren.eq(2).children().first(),
@@ -114,7 +114,7 @@ var EditManager = (function () {
                 colorTextInput($firstNameInput, validFirstName);
                 colorTextInput($patronymicInput, validPatronymic);
 
-                ErrorBar.showErrorBar("Данные введены неверно");
+                ErrorBar.showErrorBar(Constants.ERROR_MESSAGE);
 
                 return;
             }
@@ -161,9 +161,9 @@ var EditManager = (function () {
 
         } else {
 
-            if (button.value == "Сохранить") {
+            if (button.value == Constants.Buttons.SAVE) {
 
-                $row.html($("#employees").children().children().first().html());
+                $row.html($(Constants.Tables.EMPLOYEES).children().children().first().html());
                 placeDataIntoRow($row, null);
 
                 $row.mouseover(function () {
@@ -174,8 +174,8 @@ var EditManager = (function () {
                     Row.releaseRow($row);
                 });
 
-            } else if (button.value == "Отмена") {
-                $("#employees").children().children().last().remove();
+            } else if (button.value == Constants.Buttons.CANCEL) {
+                $(Constants.Tables.EMPLOYEES).children().children().last().remove();
             }
         }
         
@@ -196,16 +196,16 @@ var EditManager = (function () {
     function colorTextInput($input, isValid) {
         if (isValid) {
             $input.css({
-                "background-color": "white",
-                "color": "black",
-                "border-color": "#CCCCCC",
+                "background-color": Constants.Colors.TextInput.BACKGROUND_COLOR,
+                "color": Constants.Colors.TextInput.TEXT_COLOR,
+                "border-color": Constants.Colors.TextInput.BORDER_COLOR,
                 "border-width": "1px"
             });
         } else {
             $input.css({
-                "background-color": "#FFCCCC",
-                "color": "#FF5555",
-                "border-color": "#FF5555",
+                "background-color": Constants.Colors.TextInput.ERR_BACKGROUND_COLOR,
+                "color": Constants.Colors.TextInput.ERR_TEXT_COLOR,
+                "border-color": Constants.Colors.TextInput.ERR_BORDER_COLOR,
                 "border-width": "2px"
             });
         }
@@ -244,8 +244,8 @@ var ErrorBar = (function () {
 
 
     ErrorBar.hideErrorBar = function () {
-        $('#errorBar').css('visibility', 'hidden').css('height', '0');
-        $('#errorBar td').css('height', '0').html('');
+        $("#errorBar").css("visibility", "hidden").css("height", "0");
+        $("#errorBar td").css("height", "0").html("");
         resetHeaderMargin();
         document.body.scrollTop -= BAR_HEIGHT;
         shown = false;
@@ -343,7 +343,7 @@ var Row = (function () {
     Row.selectRow = function ($row) {
         if (!EditManager.editMode()) {
             $currentRow = $row;
-            $row.css("background", COLORS.TR.SELECTION_COLOR);
+            $row.css("background", Constants.Colors.SELECTION_TR_COLOR);
             $row.children().last().children().each(function (index, element) {
                 $(element).css("visibility", "visible");
             });
@@ -352,7 +352,7 @@ var Row = (function () {
 
     Row.releaseRow = function ($row) {
         if (!EditManager.editMode()) {
-            $row.css("background", COLORS.TR.ORIGINAL_COLOR);
+            $row.css("background", Constants.Colors.ORIGINAL_TR_COLOR);
             $row.children().last().children().each(function (index, element) {
                 $(element).css("visibility", "hidden");
             });
@@ -369,9 +369,33 @@ var Row = (function () {
 })();
 
 
-var COLORS = {}
-COLORS.TR = {
-    ORIGINAL_COLOR: 'white',
-    SELECTION_COLOR: '#EFEFEF',
-    EDIT_COLOR: 'linear-gradient(#FFEEBB, #FFEE99)',
+var Constants = {}
+
+Constants.Colors = {
+    ORIGINAL_TR_COLOR: "white",
+    SELECTION_TR_COLOR: "#EFEFEF",
+    EDIT_TR_COLOR: "linear-gradient(#FFEEBB, #FFEE99)",
+
+    TextInput: {
+        BACKGROUND_COLOR: "white",
+        TEXT_COLOR: "black",
+        BORDER_COLOR: "#CCCCCC",
+        ERR_BACKGROUND_COLOR: "#FFCCCC",
+        ERR_TEXT_COLOR: "#FF5555",
+        ERR_BORDER_COLOR: "#FF5555"
+    }
+};
+
+Constants.Buttons = {
+    ADD: "Добавить",
+    SAVE: "Сохранить",
+    CANCEL: "Отмена"
+};
+
+Constants.ERROR_MESSAGE = "Данные введены неверно";
+
+Constants.Tables = {
+    HEADER: "#header",
+    EMPLOYEES: "#employees",
+    HIDDEN_EDIT_ROW: "#hiddenEditRow"
 }
