@@ -1,0 +1,111 @@
+﻿@model IEnumerable<WebApplicationMvc01.Models.Employee>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/css/styles.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/script.js")" type="text/javascript"></script>
+    <title>Cooks</title>
+</head>
+<body>
+    <div>
+        <table id="header">
+            <tr>
+                <th style="width: 3%">ID</th>
+                <th style="width: 15%">ФАМИЛИЯ</th>
+                <th style="width: 15%">ИМЯ</th>
+                <th style="width: 15%">ОТЧЕСТВО</th>
+                <th style="width: 7%">РЕЖИМ РАБОТЫ</th>
+                <th style="width: 10%">СМЕНА</th>
+                <th style="width: 9%; min-width: 90px">ЧАСЫ/ДЕНЬ</th>
+                <th style="width: 17%; min-width: 160px">АТТЕСТАЦИИ</th>
+                <th style="width: 9%"><input type="button" id="addButton" value="Добавить" onclick="EditManager.addNew(this)" /></th>
+            </tr>
+            <tr id="separator"><td colspan="9"></td></tr>
+            <tr id="errorBar"><td colspan="9"></td></tr>
+        </table>
+        <table id="employees">
+            <tbody>
+                @foreach (WebApplicationMvc01.Models.Employee e in ViewBag.Employees)
+                {
+                    <tr onmouseover="Row.selectRow($(this))" onmouseout="Row.releaseRow($(this))">
+                        <td style="text-align: center; width: 3%">@e.Id</td>
+                        <td style="padding-left: 20px; width: 15%">@e.LastName</td>
+                        <td style="padding-left: 20px; width: 15%">@e.FirstName</td>
+                        <td style="padding-left: 20px; width: 15%">@e.Patronymic</td>
+                        <td style="text-align: center; width: 7%">@e.Session</td>
+                        <td style="text-align: center; width: 10%">@e.Shift</td>
+                        <td style="text-align: center; width: 9%">@e.AmountOfWorkingHours</td>
+                        <td style="text-align: center; width: 17%">
+                            @foreach (WebApplicationMvc01.Models.Attestation a in e.Attestations)
+                            {
+                                <div class="specialization" >@a.Specialization</div>
+                            }
+                        </td>
+                        <td style="text-align: center; width: 9%">
+                            <input class="editButton" value="Редактировать" type="button" onclick="EditManager.startEdit(this)" />
+                            <input class="editButton" value="Удалить" type="button" onclick="deleteEmployee(this)" />
+                        </td>
+                    </tr>
+                }
+                <tr id="hiddenEditRow">
+                    <td style="text-align: center"></td>
+                    <td style="padding-left: 20px"><input type="text" onblur="setCorrectCase(this)"></td>
+                    <td style="padding-left: 20px"><input type="text" onblur="setCorrectCase(this)"></td>
+                    <td style="padding-left: 20px"><input type="text" onblur="setCorrectCase(this)"></td>
+                    <td style="text-align: center">
+                        <select>
+                            <option>2/2</option>
+                            <option>5/2</option>
+                        </select>
+                    </td>
+                    <td style="text-align: center">
+                        <select>
+                            <option></option>
+                            <option>утренняя</option>
+                            <option>вечерняя</option>
+                        </select>
+                    </td>
+                    <td style="text-align: center">
+                        <select>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                            <option>10</option>
+                        </select>
+                    </td>
+                    <td style="text-align: center">
+                        @{
+                            int i = 0;
+                            foreach (var a in ViewBag.Attestations)
+                            {
+                                <div style="height: 20px; margin: 4px; padding-left: 6px; padding-right: 6px; border-radius: 3px; background-color: #F5DFA0; text-align: left">
+                                    <input type="checkbox" id="checkbox_@i" style="height: 12px">
+                                    <label for="checkbox_@i">@a.Specialization</label>
+                                </div>
+                                i++;
+                            }
+                        }
+
+                    </td>
+                    <td style="text-align: center">
+                        <input class="editButton" style="visibility: visible; margin-top: 8px; margin-bottom: 4px"
+                               value="Сохранить" type="button" onclick="EditManager.stopEdit(this)" />
+                        <input class="editButton" style="visibility: visible; margin-top: 4px; margin-bottom: 8px"
+                               value="Отмена" type="button" onclick="EditManager.stopEdit(this)" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
