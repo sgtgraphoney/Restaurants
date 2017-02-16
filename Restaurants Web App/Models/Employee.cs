@@ -17,6 +17,8 @@ namespace WebApplicationMvc01.Models
         public string Shift { get; set; }
         public int AmountOfWorkingHours { get; set; }
         public string Session { get; set; }
+        [DataType(DataType.Date)]
+        public DateTime FirstWorkingDay { get; set; }
         [ForeignKey("Attestation")]
         public List<Attestation> Attestations { get; set; }
 

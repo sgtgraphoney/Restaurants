@@ -22,13 +22,6 @@ namespace WebApplicationMvc01.Controllers
         private EmployeeContext db = new EmployeeContext();
 
 
-        public EmployeesController()
-        {
-            var json = new DataContractJsonSerializer(typeof(Employee));
-
-        }
-
-
         /**
          * Returns a page with a list of cooks. 
          * On this page you can edit information about the cooks.

@@ -122,6 +122,8 @@
     <Compile Include="Models\Attestation.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\EmployeeContext.cs" />
+    <Compile Include="Models\Restaurant.cs" />
+    <Compile Include="Models\Shedule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

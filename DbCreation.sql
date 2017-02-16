@@ -6,6 +6,7 @@
 	[Shift] NVARCHAR(10) NULL,
 	AmountOfWorkingHours INT NOT NULL,
 	[Session] CHAR(3) NOT NULL,
+	FirstWorkingDay DATE NOT NULL,
 
 	CHECK ([Shift] IN (N'утренняя', N'вечерняя') OR [Shift] IS NULL),
 	CHECK (AmountOfWorkingHours >= 4 AND AmountOfWorkingHours <= 10),
