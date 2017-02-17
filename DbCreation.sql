@@ -46,7 +46,8 @@ CREATE TABLE dbo.Restaurants (
 GO
 
 
-CREATE TABLE dbo.Shedule (
+CREATE TABLE dbo.Schedule (
+	Note INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
 	RestaurantId INT NOT NULL,
 	[Date] DATE NOT NULL,
 	[From] TIME NOT NULL,
@@ -64,8 +65,3 @@ CREATE TABLE dbo.Shedule (
 	ON DELETE CASCADE
 );
 GO
-
-
-drop table EmployeeAttestations;
-drop table Attestations;
-drop table Employees;
