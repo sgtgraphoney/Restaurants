@@ -7,7 +7,7 @@ using System.Web;
 
 namespace WebApplicationMvc01.Models
 {
-    public class Shedule
+    public class Schedule
     {
         [Key]
         public int Note { get; set; }

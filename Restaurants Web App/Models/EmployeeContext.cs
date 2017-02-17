@@ -11,6 +11,6 @@ namespace WebApplicationMvc01.Models
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Attestation> Attestations { get; set; }
         public DbSet<Restaurant> Restaurants { get; set; }
-        public DbSet<Shedule> Shedules { get; set; }
+        public DbSet<Schedule> Schedules { get; set; }
     }
 }

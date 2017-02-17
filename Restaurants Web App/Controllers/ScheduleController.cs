@@ -7,13 +7,13 @@ using WebApplicationMvc01.Models;
 
 namespace WebApplicationMvc01.Controllers
 {
-    public class SheduleController : Controller
+    public class ScheduleController : Controller
     {
         public static readonly Dictionary<Months, int> DaysInMonth;
 
         private const int HoursInShift = 7, StartTime = 10, EndTime = 24;
 
-        static SheduleController()
+        static ScheduleController()
         {
             DaysInMonth = new Dictionary<Months, int>()
             {
@@ -37,96 +37,43 @@ namespace WebApplicationMvc01.Controllers
 
 
         [HttpGet]
-        public ActionResult SheduleEditor()
+        public ActionResult ScheduleEditor()
         {
-            GenerateShedule(Months.February);
+            GenerateSchedule(Months.February);
             return View();
         }
 
 
-        private void GenerateShedule(Months month)
+        private void GenerateSchedule(Months month)
         {
             List<Employee> employees = db.Employees.Include("Attestations").ToList();
 
-            for (int i = 1; i <= 2; i++)
+            for (int i = 1; i <= 7; i++)
             {
-                List<Employee> workingToday = new List<Employee>(employees.FindAll(e => WorksToday(e, (int)month, i)));
+                EmployeeList workingToday = new EmployeeList(employees.FindAll(e => WorksToday(e, (int)month, i)));
                 workingToday.Sort(new EmployeeComparer());
 
                 foreach (Restaurant r in db.Restaurants)
                 {
                     List<Employee> selected = new List<Employee>();
-                    int totalHours = 0, j = 0;
-                    bool lastSearch = false;
+                    int totalHours = 0;
+
+                    Employee current = workingToday.FirstAppropriate(totalHours, selected);
 
                     while (true)
                     {
-                        if (j >= workingToday.Count)
+
+                        if (current == null)
                         {
                             break;
-                        }
-
-                        Employee current = workingToday[j];
-                        if (selected.Contains(current))
-                        {
-                            if (lastSearch)
-                            {
-                                j--;
-                            }
-                            else
-                            {
-                                j++;
-                            }
-                            continue;
-                        }
-
-                        if (current.Shift != null)
-                        {
-                            if (current.Shift.Equals("утренняя") && totalHours + current.AmountOfWorkingHours > HoursInShift)
-                            {
-                                if (lastSearch)
-                                {
-                                    j--;
-                                }
-                                else
-                                {
-                                    j++;
-                                }
-                                continue;
-                            }
-
-                            if (current.Shift.Equals("вечерняя") && totalHours < HoursInShift)
-                            {
-                                if (lastSearch)
-                                {
-                                    j--;
-                                }
-                                else
-                                {
-                                    j++;
-                                }
-                                continue;
-                            }
-                        }
-
-                        if (lastSearch)
-                        {
-                            if (totalHours + current.AmountOfWorkingHours >= HoursInShift * 2)
-                            {
-                                selected.Add(current);
-                                break;
-                            }
-                            else
-                            {
-                                j--;
-                            }
                         }
 
                         if (totalHours + current.AmountOfWorkingHours < HoursInShift * 2)
                         {
                             selected.Add(current);
                             totalHours += current.AmountOfWorkingHours;
-                            j = 0;
+                            current = workingToday.FirstAppropriate(totalHours, selected);
+                            continue;
                         }
                         else if (totalHours + current.AmountOfWorkingHours == HoursInShift * 2)
                         {
@@ -136,61 +83,72 @@ namespace WebApplicationMvc01.Controllers
                         }
                         else
                         {
-                            if (j < workingToday.Count - 1)
+                            Employee next = workingToday.NextAppropriate(workingToday.IndexOf(current) + 1, totalHours, selected);
+                            if (next != null)
                             {
-                                j++;
+                                current = next;
                             }
                             else
                             {
                                 Employee last = selected.Last();
 
-                                if (workingToday.IndexOf(last) < workingToday.Count - 1)
+                                selected.Remove(last);
+                                totalHours -= last.AmountOfWorkingHours;
+
+                                next = workingToday.NextAppropriate(workingToday.IndexOf(last) + 1, totalHours, selected);
+                                if (next == null)
                                 {
-                                    totalHours -= last.AmountOfWorkingHours;
-                                    selected.Remove(last);
-                                    j = workingToday.IndexOf(last) + 1;
-                                }                                
+                                    selected.Add(last);
+                                    totalHours += last.AmountOfWorkingHours;
+
+                                    selected.Add(current);
+                                    totalHours += current.AmountOfWorkingHours;
+                                    break;
+                                }
                                 else
                                 {
-                                    lastSearch = true;
+                                    selected.Add(next);
+                                    totalHours += next.AmountOfWorkingHours;
+
+                                    current = workingToday.FirstAppropriate(totalHours, selected);
                                 }
-                                                               
                             }
                         }
 
                     }
 
-                    List<Shedule> sheduleItems = new List<Shedule>();
+                    List<Schedule> scheduleItems = new List<Schedule>();
                     int startTime = StartTime;
 
                     foreach (Employee e in selected)
                     {
                         workingToday.Remove(e);
 
-                        Shedule sheduleItem = new Shedule();
+                        Schedule scheduleItem = new Schedule();
                        
-                        sheduleItem.RestaurantId = r.Id;
-                        sheduleItem.Restaurant = r;
-                        sheduleItem.EmployeeId = e.Id;
-                        sheduleItem.Employee = e;
-                        sheduleItem.Date = Today(e, (int)month, i);
-                        
+                        scheduleItem.RestaurantId = r.Id;
+                        scheduleItem.Restaurant = r;
+                        scheduleItem.EmployeeId = e.Id;
+                        scheduleItem.Employee = e;                     
+
                         if (totalHours > HoursInShift * 2 && e.Equals(selected.Last()))
                         {
-                            sheduleItem.From = new DateTime(2000, 1, 1, EndTime - e.AmountOfWorkingHours, 0, 0);
-                            sheduleItem.To = new DateTime(2000, 1, 1, EndTime % 24, 0, 0);
+                            scheduleItem.From = new DateTime(2000, 1, 1, EndTime - e.AmountOfWorkingHours, 0, 0);
+                            scheduleItem.To = new DateTime(2000, 1, 1, 0, 0, 0);
                         }
                         else
                         {                            
-                            sheduleItem.From = new DateTime(2000, 1, 1, startTime, 0, 0);
+                            scheduleItem.From = new DateTime(2000, 1, 1, startTime, 0, 0);
                             startTime += e.AmountOfWorkingHours;
-                            sheduleItem.To = new DateTime(2000, 1, 1, startTime % 24, 0, 0);
+                            scheduleItem.To = new DateTime(2000, 1, 1, startTime % 24, 0, 0);
                         }
 
-                        sheduleItems.Add(sheduleItem);
+                        scheduleItem.Date = Today(e, (int)month, i);
+
+                        scheduleItems.Add(scheduleItem);
                     }
 
-                    db.Shedules.AddRange(sheduleItems);
+                    db.Schedules.AddRange(scheduleItems);
                 }
             }
 
