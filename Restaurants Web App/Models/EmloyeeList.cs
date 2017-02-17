@@ -39,7 +39,7 @@ namespace WebApplicationMvc01.Models
 
         public Employee LastAppropriate(int totalHours, List<Employee> excluded)
         {
-            for (int i = Count - 1; i >= 0 ; i++)
+            for (int i = Count - 1; i >= 0 ; i--)
             {
                 if (IsAppropriate(i, totalHours, excluded))
                 {
