@@ -1,4 +1,4 @@
-﻿@model IEnumerable<WebApplicationMvc01.Models.Employee>
+﻿@model IEnumerable<Restaurants.Models.Employee>
 @{
     Layout = null;
 }
@@ -32,7 +32,7 @@
         </table>
         <table id="employees">
             <tbody>
-                @foreach (WebApplicationMvc01.Models.Employee e in ViewBag.Employees)
+                @foreach (Restaurants.Models.Employee e in ViewBag.Employees)
                 {
                     <tr onmouseover="Row.selectRow($(this))" onmouseout="Row.releaseRow($(this))">
                         <td style="text-align: center; width: 3%">@e.Id</td>
@@ -43,7 +43,7 @@
                         <td style="text-align: center; width: 10%">@e.Shift</td>
                         <td style="text-align: center; width: 9%">@e.AmountOfWorkingHours</td>
                         <td style="text-align: center; width: 17%">
-                            @foreach (WebApplicationMvc01.Models.Attestation a in e.Attestations)
+                            @foreach (Restaurants.Models.Attestation a in e.Attestations)
                             {
                                 <div class="specialization" >@a.Specialization</div>
                             }
