@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WebApplicationMvc01.Models
+namespace Restaurants.Models
 {
     public class EmployeeList : List<Employee>
     {

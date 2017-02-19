@@ -5,9 +5,9 @@ using System.Runtime.Serialization.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
-using WebApplicationMvc01.Models;
+using Restaurants.Models;
 
-namespace WebApplicationMvc01.Controllers
+namespace Restaurants.Controllers
 {
     /**
      * This controller is responsible for handling requests that change information about cooks.

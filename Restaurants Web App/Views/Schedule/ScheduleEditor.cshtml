@@ -1,4 +1,4 @@
-﻿
+﻿@model IEnumerable<Restaurants.Models.Schedule>
 @{
     Layout = null;
 }
@@ -12,6 +12,55 @@
 </head>
 <body>
     <div> 
+        <table>
+            <tr>
+                <th>ДАТА</th>
+                <th>ВРЕМЯ РАБОТЫ</th>
+                <th>ФИО</th>
+            </tr>
+            @{
+                if (((List<Restaurants.Models.Schedule>)ViewBag.ScheduleList).Count == 0)
+                {
+                    <tr>
+                        <td>На этот месяц расписание еще не составлено :(</td>
+                    </tr>
+                }
+                else
+                {
+                    DateTime lastDate = new DateTime();
+
+                    int datePointer = 0;
+
+                    for (int i = 0; i < ViewBag.ScheduleList.Count; i++)
+                    {
+                        <tr>
+                            @{
+                                Restaurants.Models.Schedule schedule = ViewBag.ScheduleList[i];
+                                if (schedule.Date != lastDate)
+                                {
+                                    <td rowspan="@ViewBag.WorkersPerDay[datePointer]">@schedule.Date.ToShortDateString()</td>
+                                    datePointer++;
+                                }
+                                lastDate = schedule.Date;
+
+                                <td>C @schedule.From.ToString(@"hh\:mm") до @schedule.To.ToString(@"hh\:mm")</td>
+
+                                Restaurants.Models.Employee employee = schedule.Employee;
+                                string name = employee.LastName;
+                                name += " " + employee.FirstName[0] + ".";
+                                if (employee.Patronymic != null)
+                                {
+                                    name += " " + employee.Patronymic[0] + ".";
+                                }
+
+                                <td>@name</td>
+                            }
+                        </tr>
+                    }
+                }
+            }
+        </table>
+
     </div>
 </body>
 </html>

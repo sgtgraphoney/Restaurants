@@ -133,6 +133,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Employees\EmployeeEditor.cshtml" />
     <Content Include="Views\Schedule\ScheduleEditor.cshtml" />
+    <Content Include="Views\Schedule\Menu.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

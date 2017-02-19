@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
-namespace WebApplicationMvc01.Models
+namespace Restaurants.Models
 {
     public class Attestation
     {

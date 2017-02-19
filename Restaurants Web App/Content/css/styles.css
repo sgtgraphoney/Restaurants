@@ -34,7 +34,8 @@ td {
     margin: 0;
     padding: 0;
     border-width: 0px;
-    border-bottom: 1px solid #DDDDDD;
+    border-bottom: 1px solid #999999;
+    border-top: 4px solid #DDDDDD;
 }
 
 

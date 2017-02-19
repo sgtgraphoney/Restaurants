@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Data.Entity;
 
-namespace WebApplicationMvc01.Models
+namespace Restaurants.Models
 {
     public class EmployeeContext : DbContext
     {

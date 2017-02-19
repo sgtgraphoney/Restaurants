@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace WebApplicationMvc01.Controllers
+namespace Restaurants.Controllers
 {
     public class HomeController : Controller
     {

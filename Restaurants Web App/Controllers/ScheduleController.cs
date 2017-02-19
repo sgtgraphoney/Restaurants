@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using WebApplicationMvc01.Models;
+using Restaurants.Models;
 
-namespace WebApplicationMvc01.Controllers
+namespace Restaurants.Controllers
 {
+
     public class ScheduleController : Controller
     {
         public static readonly Dictionary<Months, int> DaysInMonth;
@@ -32,23 +34,66 @@ namespace WebApplicationMvc01.Controllers
             };
         }
 
-
         private EmployeeContext db = new EmployeeContext();
 
 
         [HttpGet]
-        public ActionResult ScheduleEditor()
+        public ActionResult Menu()
         {
-            GenerateSchedule(Months.February);
+            ViewBag.Restaurants = db.Restaurants.ToList();
             return View();
         }
 
 
-        private void GenerateSchedule(Months month)
+        [HttpGet]
+        public ActionResult ScheduleEditor(string request, int month, int restaurantId)
+        {
+            if (request.Equals("Составить"))
+            {
+                var old = from schedule in db.Schedules
+                          where schedule.Date.Month == month && schedule.RestaurantId == restaurantId
+                          select schedule;
+
+                db.Schedules.RemoveRange(old);
+                db.SaveChanges();
+
+                GenerateSchedule(month);
+
+                SelectSchedule(month, restaurantId);
+                return View();
+            }
+            else if (request.Equals("Показать"))
+            {
+                SelectSchedule(month, restaurantId);
+                return View();
+            }
+            else
+            {
+                return null;
+            }            
+        }
+
+
+        private void SelectSchedule(int month, int restaurantId)
+        {
+            var scheduleList = from schedule in db.Schedules.Include("Employee")
+                               where schedule.RestaurantId == restaurantId && schedule.Date.Month == month
+                               orderby schedule.Date
+                               select schedule;
+
+            ViewBag.ScheduleList = scheduleList.ToList();
+
+            ViewBag.WorkersPerDay = (from schedule in scheduleList
+                                     group schedule by schedule.Date into dateGroup
+                                     select dateGroup.Count()).ToList();
+        }
+
+
+        private void GenerateSchedule(int month)
         {
             List<Employee> employees = db.Employees.Include("Attestations").ToList();
 
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= DaysInMonth[(Months)month]; i++)
             {
                 EmployeeList workingToday = new EmployeeList(employees.FindAll(e => WorksToday(e, (int)month, i)));
                 workingToday.Sort(new EmployeeComparer());
@@ -138,7 +183,6 @@ namespace WebApplicationMvc01.Controllers
                     }
 
                     List<Schedule> scheduleItems = new List<Schedule>();
-                    int startTime = StartTime;
 
                     totalHours = 0;
 
@@ -158,29 +202,29 @@ namespace WebApplicationMvc01.Controllers
                         {
                             if (totalHours + e.AmountOfWorkingHours <= HoursInShift * 2)
                             {
-                                scheduleItem.From = new DateTime(1000, 1, 1, StartTime + totalHours, 0, 0);
+                                scheduleItem.From = new TimeSpan(StartTime + totalHours, 0, 0);
                                 totalHours += e.AmountOfWorkingHours;
-                                scheduleItem.To = new DateTime(1000, 1, 1, (StartTime + totalHours) % 24, 0, 0);
+                                scheduleItem.To = new TimeSpan((StartTime + totalHours) % 24, 0, 0);
                             }
                             else
                             {
-                                scheduleItem.From = new DateTime(1000, 1, 1, StartTime + HoursInShift * 2 - e.AmountOfWorkingHours, 0, 0);
-                                scheduleItem.To = new DateTime(1000, 1, 1, 0, 0, 0);
+                                scheduleItem.From = new TimeSpan(StartTime + HoursInShift * 2 - e.AmountOfWorkingHours, 0, 0);
+                                scheduleItem.To = new TimeSpan(0, 0, 0);
                             }
                         }
                         else if (e.Shift.Equals("утренняя"))
                         {
                             if (totalHours + e.AmountOfWorkingHours <= HoursInShift)
                             {
-                                scheduleItem.From = new DateTime(1000, 1, 1, StartTime + totalHours, 0, 0);
+                                scheduleItem.From = new TimeSpan(StartTime + totalHours, 0, 0);
                                 totalHours += e.AmountOfWorkingHours;
-                                scheduleItem.To = new DateTime(1000, 1, 1, StartTime + totalHours, 0, 0);
+                                scheduleItem.To = new TimeSpan(StartTime + totalHours, 0, 0);
                             }
                             else
                             {
-                                scheduleItem.From = new DateTime(1000, 1, 1, StartTime + HoursInShift - e.AmountOfWorkingHours, 0, 0);
+                                scheduleItem.From = new TimeSpan(StartTime + HoursInShift - e.AmountOfWorkingHours, 0, 0);
                                 totalHours = HoursInShift;
-                                scheduleItem.To = new DateTime(1000, 1, 1, StartTime + HoursInShift, 0, 0);
+                                scheduleItem.To = new TimeSpan(StartTime + HoursInShift, 0, 0);
                             }
                         }
 
