@@ -46,7 +46,7 @@ namespace Restaurants.Controllers
 
 
         [HttpGet]
-        public ActionResult ScheduleEditor(string request, int month, int restaurantId)
+        public ActionResult Show(string request, int month, int restaurantId)
         {
             if (request.Equals("Составить"))
             {
@@ -65,6 +65,10 @@ namespace Restaurants.Controllers
             else if (request.Equals("Показать"))
             {
                 SelectSchedule(month, restaurantId);
+
+                ViewBag.RestaurantId = restaurantId;
+                ViewBag.Month = month;
+
                 return View();
             }
             else

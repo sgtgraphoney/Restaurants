@@ -1,0 +1,121 @@
+﻿@model IEnumerable<Restaurants.Models.Schedule>
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Schedule</title>
+    <link rel="stylesheet" href="~/Content/css/show.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&amp;subset=cyrillic" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" type="text/javascript"></script>
+    <script>
+        window.onscroll = function () {
+            if ((window.pageYOffset || document.documentElement.scrollTop) > 100) {
+                $("#up").css("visibility", "visible");
+            } else {
+                $("#up").css("visibility", "hidden");
+            }
+        }
+
+        function scrollToTop() {
+            $("html, body").animate({
+                scrollTop: 0
+            }, 500);
+        }
+    </script>
+</head>
+<body>
+    <div id="container">
+        @{
+            if (((List<Restaurants.Models.Schedule>)ViewBag.ScheduleList).Count == 0)
+            {
+                <div id="notification">На этот месяц расписание еще не составлено :(</div>
+                using (Html.BeginForm("Show", "Schedule", FormMethod.Get))
+                {
+                    @Html.Hidden("month", ViewBag.Month as string)
+                    @Html.Hidden("restaurantId", ViewBag.RestaurantId as string)
+                    <input name="request" type="submit" value="Составить" />
+                }
+            }
+            else
+            {
+                DateTime lastDate = new DateTime();
+
+                int datePointer = 0;
+                string backgroundColor = null;
+
+                <table id="header">
+                    <tr>
+                        <th></th>
+                        <th class="date">ДАТА</th>
+                        <th class="time">ВРЕМЯ РАБОТЫ</th>
+                        <th class="name">Ф.И.О.</th>
+                        <th></th>
+                    </tr>
+                </table>
+                using (Html.BeginForm("Menu", "Schedule", FormMethod.Get))
+                {
+                    <input id="back" type="submit" value="Вернуться" />
+                }
+                <input id="up" type="button" value="Наверх" onclick="scrollToTop()" />
+                <table id="schedule">
+                    @for (int i = 0; i < ViewBag.ScheduleList.Count; i++)
+                    {
+                        <tr>
+                            @{
+                                Restaurants.Models.Schedule schedule = ViewBag.ScheduleList[i];
+                                if (schedule.Date != lastDate)
+                                {
+                                    backgroundColor = datePointer % 2 == 0 ? "#F5F5F5" : "#EFEFEF";
+                                    <td class="date" rowspan="@ViewBag.WorkersPerDay[datePointer]" 
+                                        style="text-align: center; background-color: @backgroundColor">
+                                        @schedule.Date.ToShortDateString()
+                                    </td>
+                                    datePointer++;
+                                }
+
+                                string fromClass, toClass;
+                                fromClass = toClass = "inTime";
+                                if (i > 0 && schedule.Date == lastDate && schedule.From < ViewBag.ScheduleList[i - 1].To)
+                                {
+                                    fromClass = "beginsEarly";
+                                }
+                                if (i < ViewBag.ScheduleList.Count - 1 && schedule.Date != ViewBag.ScheduleList[i + 1].Date &&
+                                                !schedule.To.Equals(new TimeSpan(0, 0, 0)))
+                                {
+                                    toClass = "endsEarly";
+                                }
+
+                                lastDate = schedule.Date;
+
+                                <td class="time" style="text-align: center; background-color: @backgroundColor">
+                                    с
+                                    <span class="@fromClass">@schedule.From.ToString(@"hh\:mm")</span>
+                                    до
+                                    <span class="@toClass">@schedule.To.ToString(@"hh\:mm")</span>
+                                </td>
+
+                                Restaurants.Models.Employee employee = schedule.Employee;
+                                string name = employee.LastName;
+                                name += " " + employee.FirstName[0] + ".";
+                                if (employee.Patronymic != null)
+                                {
+                                    name += " " + employee.Patronymic[0] + ".";
+                                }
+
+                                <td class="name" style="background-color: @backgroundColor">
+                                    <span>@name</span>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </table>
+            }
+        }
+</div>
+</body>
+</html>

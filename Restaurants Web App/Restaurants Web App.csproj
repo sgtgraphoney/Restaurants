@@ -106,7 +106,8 @@
     <Content Include="App_Data\Restaurants_log.ldf">
       <DependentUpon>Restaurants.mdf</DependentUpon>
     </Content>
-    <Content Include="Content\css\styles.css" />
+    <Content Include="Content\css\employees.css" />
+    <Content Include="Content\css\show.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\edit.js" />
     <Content Include="Web.config" />
@@ -132,7 +133,7 @@
     <Content Include="packages.config" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Employees\EmployeeEditor.cshtml" />
-    <Content Include="Views\Schedule\ScheduleEditor.cshtml" />
+    <Content Include="Views\Schedule\Show.cshtml" />
     <Content Include="Views\Schedule\Menu.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
