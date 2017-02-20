@@ -107,6 +107,8 @@
       <DependentUpon>Restaurants.mdf</DependentUpon>
     </Content>
     <Content Include="Content\css\employees.css" />
+    <Content Include="Content\css\header.css" />
+    <Content Include="Content\css\menu.css" />
     <Content Include="Content\css\show.css" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\edit.js" />

@@ -1,6 +1,6 @@
 ﻿body {
     margin: 0px;
-    background: linear-gradient(#898D91, #61656A);
+    background: linear-gradient(#A9ADB1, #61656A);
     background-attachment: fixed;
     color: #555555;
     font-family: 'Open Sans', sans-serif;
@@ -40,4 +40,9 @@
 
 .headerButton:hover {
     background-color: #464C54;
+}
+
+
+.headerButton:active, .headerButton:focus {
+    outline: none;
 }

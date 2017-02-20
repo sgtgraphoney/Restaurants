@@ -8,20 +8,27 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/css/header.css" />
+    <link rel="stylesheet" href="~/Content/css/index.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&amp;subset=cyrillic" rel="stylesheet">
     <title>Index</title>
 </head>
 <body>
-    <div>
-        @using (Html.BeginForm("EmployeeEditor", "Employees", FormMethod.Get))
-        {
-            <input type="submit" value="Edit cooks" />
-        }
-    </div>
-    <div>
-        @using (Html.BeginForm("Menu", "Schedule", FormMethod.Get))
-        {
-            <input type="submit" value="Schedule" />
-        }
-    </div>
+    <table id="header">
+        <tr>
+            <td style="text-align: right">
+                @using (Html.BeginForm("EmployeeEditor", "Employees", FormMethod.Get))
+                {
+                    <input class="headerButton" style="width: 200px" type="submit" value="Информация о поварах" />
+                }
+            </td>
+            <td style="text-align: left">
+                @using (Html.BeginForm("Menu", "Schedule", FormMethod.Get))
+                {
+                    <input class="headerButton" style="width: 120px" type="submit" value="Расписание" />
+                }
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

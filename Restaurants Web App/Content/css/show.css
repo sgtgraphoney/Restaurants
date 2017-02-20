@@ -15,7 +15,7 @@
     background: none;
     border: none;
     opacity: 0.8;
-    color: #001122;
+    color: #E5E5E5;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600
 }
@@ -26,7 +26,7 @@
 }
 
 
-#up:active, :focus {
+#up:active, #up:focus {
     outline: none;
 }
 
@@ -40,8 +40,6 @@
 th {
     height: 40px;
     font-weight: normal;
-    border-top: none;
-    border-bottom: none;
     padding: 0;
 }
 

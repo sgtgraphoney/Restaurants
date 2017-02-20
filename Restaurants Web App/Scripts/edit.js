@@ -34,7 +34,7 @@ var EditManager = (function () {
 
         var $row = $employeesTable.children().last();
         Row.selectRow($row);
-        $row.css("background", Constants.Colors.EDIT_TR_COLOR);
+        $row.children().css("background", Constants.Colors.EDIT_TR_COLOR);
 
         edit = true;
 
@@ -53,8 +53,6 @@ var EditManager = (function () {
 
         var $row = Row.getCurrentRow();
 
-        $row.css("background", Constants.Colors.EDIT_TR_COLOR);
-
         var personalData = [];
         for (var i = 0; i < 7; i++) {
             personalData[i] = $row.children().eq(i).text();
@@ -68,6 +66,8 @@ var EditManager = (function () {
 
         originalContent = $row.html();
         $row.html($(Constants.Tables.HIDDEN_EDIT_ROW).html());
+
+        $row.children().css("background", Constants.Colors.EDIT_TR_COLOR);
 
         $rowChildren = $row.children();
         $rowChildren.first().html(personalData[0]);
@@ -198,15 +198,11 @@ var EditManager = (function () {
             $input.css({
                 "background-color": Constants.Colors.TextInput.BACKGROUND_COLOR,
                 "color": Constants.Colors.TextInput.TEXT_COLOR,
-                "border-color": Constants.Colors.TextInput.BORDER_COLOR,
-                "border-width": "1px"
             });
         } else {
             $input.css({
                 "background-color": Constants.Colors.TextInput.ERR_BACKGROUND_COLOR,
                 "color": Constants.Colors.TextInput.ERR_TEXT_COLOR,
-                "border-color": Constants.Colors.TextInput.ERR_BORDER_COLOR,
-                "border-width": "2px"
             });
         }
     }
@@ -227,7 +223,7 @@ function setCorrectCase(input) {
 // Contains a method that shows the error bar and a method that hides the error bar.
 var ErrorBar = (function () {
 
-    const BAR_HEIGHT = 50;
+    const BAR_HEIGHT = 34;
 
     var shown = false;
 
@@ -236,7 +232,7 @@ var ErrorBar = (function () {
 
     ErrorBar.showErrorBar = function (message) {
         $("#errorBar").css("visibility", "visible").css("height", BAR_HEIGHT + "px");
-        $("#errorBar td").css("height", BAR_HEIGHT + "px").html(message);
+        $("#errorBar td").css("height", BAR_HEIGHT + "px").eq(1).text(message);
         resetHeaderMargin();
         document.body.scrollTop += BAR_HEIGHT;
         shown = true;
@@ -245,7 +241,7 @@ var ErrorBar = (function () {
 
     ErrorBar.hideErrorBar = function () {
         $("#errorBar").css("visibility", "hidden").css("height", "0");
-        $("#errorBar td").css("height", "0").html("");
+        $("#errorBar td").css("height", "0").eq(1).text("");
         resetHeaderMargin();
         document.body.scrollTop -= BAR_HEIGHT;
         shown = false;
@@ -300,7 +296,7 @@ function sendDeleteReqest(id, $row) {
 
 function deleteEmployee(button) {
     var $row = $(button).parent().parent();
-    var id = $row.children().first().text();
+    var id = $row.children().first().next().text();
     sendDeleteReqest(id, $row);
 }
 
@@ -311,7 +307,7 @@ function placeDataIntoRow($row, data) {
     if (data === null) {
 
         for (var i = 0; i < $rowChildren.length - 1; i++) {
-            $rowChildren.eq(0).empty();
+            $rowChildren.eq(i).empty();
         }
 
     } else {
@@ -343,7 +339,7 @@ var Row = (function () {
     Row.selectRow = function ($row) {
         if (!EditManager.editMode()) {
             $currentRow = $row;
-            $row.css("background", Constants.Colors.SELECTION_TR_COLOR);
+            $row.children().css("background", Constants.Colors.SELECTION_TR_COLOR);
             $row.children().last().children().each(function (index, element) {
                 $(element).css("visibility", "visible");
             });
@@ -352,7 +348,7 @@ var Row = (function () {
 
     Row.releaseRow = function ($row) {
         if (!EditManager.editMode()) {
-            $row.css("background", Constants.Colors.ORIGINAL_TR_COLOR);
+            $row.children().css("background", Constants.Colors.ORIGINAL_TR_COLOR);
             $row.children().last().children().each(function (index, element) {
                 $(element).css("visibility", "hidden");
             });
@@ -372,17 +368,15 @@ var Row = (function () {
 var Constants = {}
 
 Constants.Colors = {
-    ORIGINAL_TR_COLOR: "white",
-    SELECTION_TR_COLOR: "#EFEFEF",
-    EDIT_TR_COLOR: "linear-gradient(#FFEEBB, #FFEE99)",
+    ORIGINAL_TR_COLOR: "#F5F5F5",
+    SELECTION_TR_COLOR: "#EBEBEB",
+    EDIT_TR_COLOR: "#E0E0E0",
 
     TextInput: {
         BACKGROUND_COLOR: "white",
-        TEXT_COLOR: "black",
-        BORDER_COLOR: "#CCCCCC",
-        ERR_BACKGROUND_COLOR: "#FFCCCC",
-        ERR_TEXT_COLOR: "#FF5555",
-        ERR_BORDER_COLOR: "#FF5555"
+        TEXT_COLOR: "#444444",
+        ERR_BACKGROUND_COLOR: "#FF9999",
+        ERR_TEXT_COLOR: "#AA3333",
     }
 };
 

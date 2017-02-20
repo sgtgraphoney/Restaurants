@@ -1,31 +1,19 @@
-﻿body {
-    background-color: white;
-    margin: 0px;
-    font-family: Verdana, Verdana, Geneva, sans-serif;
-    font-size: 12px;
-}
-
-
-table {
+﻿table {
     border-spacing: 0;
     padding: 0;
+    border-collapse: collapse;
 }
 
 
 tr {
-    margin: 0;
     padding: 0;
 }
 
 
 th {
-    height: 50px;
-    margin: 0;
+    height: 40px;
+    font-weight: normal;
     padding: 0;
-    border-left: 2px solid #DDDDFF;
-    background: linear-gradient(#DDDDFF, #CCCCFF);
-    color: #555555;
-    font-weight: 100;
 }
 
 
@@ -33,50 +21,34 @@ td {
     height: 78px;
     margin: 0;
     padding: 0;
-    border-width: 0px;
-    border-bottom: 1px solid #999999;
-    border-top: 4px solid #DDDDDD;
+    border-bottom: 1px solid #DDDDDD;
+    background-color: #F5F5F5;
 }
 
 
-#header {
-    position: fixed;
-    top: 0;
-    z-index: 1;
+.dummy {
+    background: none;
+    border: none;
+    width: 9%;
 }
 
 
 #employees {
-}
-
-
-#separator {
-    height: 3px;
-    background-color: #9999AA;
-}
-
-
-#separator td {
-    height: 3px
+    margin: auto; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
 
 #errorBar {
     visibility: hidden;
-    padding: 0;
-    margin: 0;
-    background: linear-gradient(#FFAAAA, #FF9999);
-    font-size: 14px;
     color: #AA3333;
 }
 
 
 #errorBar td {
     height: 0;
-    margin: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 20px;
+    background-color: #FF9999;
+    border: none;
 }
 
 
@@ -99,25 +71,24 @@ td {
 
 .editButton {
     width: 100px;
-    height: 22px;
-    margin: 4px;
-    background-color: #EFEFEF;
-    border-radius: 3px;
-    border: 1px solid #999999;
-    color: #555555;
+    height: 20px;
+    margin: 3px;
+    background: none;
+    color: #444444;
     font-size: 12px;
+    font-weight: 600;  
     visibility: hidden;
 }
 
 
 .editButton:hover, #addButton:hover {
-    border-width: 2px;
+    text-decoration: underline;  
 }
 
 
 .editButton:active {
-    background-color: #F6F6F6;
     outline-width: 0;
+    color: #888888;
 }
 
 
@@ -128,14 +99,11 @@ td {
 
 .specialization {
     height: 15px;
-    margin: 4px;
     min-width: 150px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 6px;
-    padding-right: 6px;
-    border-radius: 3px;
-    background-color: #EFEFEF;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    background-color: #E6E6E6;
 }
 
 
@@ -144,14 +112,21 @@ td {
 }
 
 
-input, select, option {
+input[type=text] {
+    width: 130px;
+}
+
+
+input, select {
+    height: 20px;
     padding-left: 4px;
     padding-right: 4px;
-    border-radius: 3px;
-    border: 1px solid #CCCCCC;
+    border: none;
+    font-family: 'Open Sans', sans-serif;
+    color: #444444;
 }
 
 
 input:focus, select:focus {
-    outline-width: 0;
+    outline: none;
 }
