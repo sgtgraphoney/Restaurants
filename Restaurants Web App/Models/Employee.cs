@@ -36,6 +36,7 @@ namespace Restaurants.Models
             Shift = e.Shift;
             AmountOfWorkingHours = e.AmountOfWorkingHours;
             Session = e.Session;
+            FirstWorkingDay = e.FirstWorkingDay;
             Attestations = e.Attestations;
         }
 

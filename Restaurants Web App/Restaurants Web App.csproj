@@ -110,12 +110,14 @@
     <Content Include="Content\css\header.css" />
     <Content Include="Content\css\menu.css" />
     <Content Include="Content\css\show.css" />
+    <Content Include="Content\word-art.gif" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\edit.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\CorrectJsonResult.cs" />
     <Compile Include="Controllers\EmployeesController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ScheduleController.cs" />
@@ -123,7 +125,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Attestation.cs" />
-    <Compile Include="Models\EmloyeeList.cs" />
+    <Compile Include="Controllers\EmloyeeList.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\EmployeeContext.cs" />
     <Compile Include="Models\Restaurant.cs" />

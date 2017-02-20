@@ -55,8 +55,15 @@ var EditManager = (function () {
 
         var personalData = [];
         for (var i = 0; i < 7; i++) {
-            personalData[i] = $row.children().eq(i).text();
+            if (i == 4) {
+                continue;
+            }
+            personalData[i] = $row.children().eq(i).html();
         }
+
+        var shiftInfo = [];
+        shiftInfo[0] = $row.children().eq(4).children().first().text();
+        shiftInfo[1] = $row.children().eq(4).children().last().text();
 
         var $attestationElements = $row.children().eq(7).children();
         var attestations = [];
@@ -71,7 +78,12 @@ var EditManager = (function () {
 
         $rowChildren = $row.children();
         $rowChildren.first().html(personalData[0]);
+        $rowChildren.eq(4).children().first().children().first().val(shiftInfo[0]);
+        $rowChildren.eq(4).children().last().children().first().val(shiftInfo[1]);
         for (i = 1; i < 7; i++) {
+            if (i == 4) {
+                continue;
+            }
             $rowChildren.eq(i).children().first().val(personalData[i]);
         }
 
@@ -103,16 +115,19 @@ var EditManager = (function () {
             var $rowChildren = $row.children();
             var $lastNameInput = $rowChildren.eq(1).children().first(),
                 $firstNameInput = $rowChildren.eq(2).children().first(),
-                $patronymicInput = $rowChildren.eq(3).children().first();
+                $patronymicInput = $rowChildren.eq(3).children().first(),
+                $dateInput = $rowChildren.eq(4).children().last().children().first();
 
             var validLastName = validateName($lastNameInput.val()),
                 validFirstName = validateName($firstNameInput.val()),
                 validPatronymic = validatePatronymic($patronymicInput.val());
+            var validatedDate = validateDate($dateInput.val());
 
-            if (!(validLastName && validFirstName && validPatronymic)) {
+            if (!(validLastName && validFirstName && validPatronymic && validatedDate)) {
                 colorTextInput($lastNameInput, validLastName);
                 colorTextInput($firstNameInput, validFirstName);
                 colorTextInput($patronymicInput, validPatronymic);
+                colorTextInput($dateInput, validatedDate);
 
                 ErrorBar.showErrorBar(Constants.ERROR_MESSAGE);
 
@@ -136,9 +151,10 @@ var EditManager = (function () {
                 FirstName: $firstNameInput.val(),
                 Patronymic: $patronymicInput.val(),
                 LastName: $lastNameInput.val(),
-                Shift: $rowChildren.eq(5).children().first().val(),
+                Shift: $rowChildren.eq(5).children().first().val(),               
                 AmountOfWorkingHours: $rowChildren.eq(6).children().first().val(),
-                Session: $rowChildren.eq(4).children().first().val(),
+                Session: $rowChildren.eq(4).children().first().children().first().val(),
+                FirstWorkingDay: (new Date(validatedDate)).toDateString(),
                 Attestations: attestations
             }, $row);
         }
@@ -191,6 +207,35 @@ var EditManager = (function () {
     function validatePatronymic(name) {
         return name.match(/^[A-ZА-Яa-zа-яЁё]*$/);
     }
+
+
+    function validateDate(dateString) {
+        var pattern = /^\d?\d\.\d?\d\.\d{1,4}$/;
+        if (pattern.test(dateString)) {
+            var day = parseInt(/^(\d+)/.exec(dateString)[1]);
+            var month = parseInt(/^\d+\.(\d+)/.exec(dateString)[1]);
+            var year = /(\d+)$/.exec(dateString)[1];
+            if (/^0{2,}/.test(year)) {
+                return null;
+            }
+
+            year = parseInt(year);
+
+            var now = (new Date()).getFullYear();
+            if (month > 0 && month <= 12 && day > 0 && day <= daysInMonth[month - 1] &&
+                (year >= 1970 && year <= now) || ((year + "").length <= 2 && year <= now % 100)) {
+                return month + "." + day + "." + year;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+        
+    }
+
+
+    var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 
     function colorTextInput($input, isValid) {
@@ -316,7 +361,11 @@ function placeDataIntoRow($row, data) {
         $rowChildren.eq(1).text(data.LastName);
         $rowChildren.eq(2).text(data.FirstName);
         $rowChildren.eq(3).text(data.Patronymic);
-        $rowChildren.eq(4).text(data.Session);
+
+        $sessionInfo = $rowChildren.eq(4).children();
+        $sessionInfo.first().text(data.Session);
+        $sessionInfo.last().text(formatDate(new Date(data.FirstWorkingDay)));
+
         $rowChildren.eq(5).text(data.Shift);
         $rowChildren.eq(6).text(data.AmountOfWorkingHours);
 
@@ -326,6 +375,23 @@ function placeDataIntoRow($row, data) {
         }
 
     }   
+}
+
+
+function formatDate(date) {
+    var day = date.getDate();
+    if (day < 10) {
+        day = "0" + day;
+    }
+
+    var month = date.getMonth() + 1;
+    if (month < 10) {
+        month = "0" + month;
+    }
+
+    var year = date.getFullYear();
+
+    return day + "." + month + "." + year;
 }
 
 

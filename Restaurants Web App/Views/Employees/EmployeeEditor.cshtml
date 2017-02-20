@@ -54,7 +54,11 @@
                         <td style="width: 160px; min-width: 160px">@e.LastName</td>
                         <td style="width: 160px; min-width: 160px">@e.FirstName</td>
                         <td style="width: 160px; min-width: 160px">@e.Patronymic</td>
-                        <td style="text-align: center; width: 100px; min-width: 100px">@e.Session</td>
+                        <td style="text-align: center; width: 100px; min-width: 100px">
+                            <div>@e.Session</div>
+                            <div>начиная с</div>
+                            <div>@e.FirstWorkingDay.ToShortDateString()</div>
+                        </td>
                         <td style="text-align: center; width: 100px; min-width: 100px">@e.Shift</td>
                         <td style="text-align: center; width: 80px; min-width: 80px">@e.AmountOfWorkingHours</td>
                         <td style="text-align: center; width: 170px; min-width: 170px">
@@ -70,15 +74,21 @@
                     </tr>
                 }
                 <tr id="hiddenEditRow">
-                    <td style="text-align: center; width: 60px; min-width: 60px""></td>
+                    <td style="text-align: center; width: 60px; min-width: 60px"></td>
                     <td style="width: 160px; min-width: 160px"><input type="text" onblur="setCorrectCase(this)"></td>
                     <td style="width: 160px; min-width: 160px"><input type="text" onblur="setCorrectCase(this)"></td>
                     <td style="width: 160px; min-width: 160px"><input type="text" onblur="setCorrectCase(this)"></td>
                     <td style="text-align: center; width: 100px; min-width: 100px">
-                        <select>
-                            <option>2/2</option>
-                            <option>5/2</option>
-                        </select>
+                        <div>
+                            <select>
+                                <option>2/2</option>
+                                <option>5/2</option>
+                            </select>
+                        </div>
+                        <div>начиная с</div>
+                        <div>
+                            <input type="text" style="width: 72px" />
+                        </div>
                     </td>
                     <td style="text-align: center; width: 100px; min-width: 100px">
                         <select>

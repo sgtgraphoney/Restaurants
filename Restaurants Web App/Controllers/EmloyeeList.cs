@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Restaurants.Models;
 
-namespace Restaurants.Models
+namespace Restaurants.Controllers
 {
     public class EmployeeList : List<Employee>
     {

@@ -53,12 +53,14 @@ namespace Restaurants.Controllers
                     a.Employees = null;
                 }
 
-                return Json(new
+                return new CorrectJsonResult()
                 {
-                    success = true,
-                    data = response
-                });
-
+                    Data = new 
+                    {
+                        success = true,
+                        data = response
+                    }
+                };
             }
             else
             {
@@ -163,7 +165,8 @@ namespace Restaurants.Controllers
             Regex shiftRegex = new Regex(@"^(утренняя|вечерняя)$");
             bool workInfoOk = (employee.Shift == null || shiftRegex.IsMatch(employee.Shift)) &&
                 sessionRegex.IsMatch(employee.Session) &&
-                employee.AmountOfWorkingHours >= 4 && employee.AmountOfWorkingHours <= 10;
+                employee.AmountOfWorkingHours >= 4 && employee.AmountOfWorkingHours <= 10 &&
+                employee.FirstWorkingDay.Year >= 1970 && employee.FirstWorkingDay.Year <= DateTime.Now.Year;
 
             return idOk && nameOk && workInfoOk;
         }
