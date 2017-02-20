@@ -1,0 +1,43 @@
+﻿body {
+    margin: 0px;
+    background: linear-gradient(#898D91, #61656A);
+    background-attachment: fixed;
+    color: #555555;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+}
+
+
+#header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+    background-color: #363C44;
+    color: #E5E5E5;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+
+#back {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+}
+
+
+.headerButton {
+    width: 90px;
+    height: 40px;
+    background: none;
+    border: none;
+    color: #E5E5E5;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+}
+
+
+.headerButton:hover {
+    background-color: #464C54;
+}

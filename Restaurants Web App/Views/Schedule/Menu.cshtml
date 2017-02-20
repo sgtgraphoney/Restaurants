@@ -8,39 +8,48 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/Content/css/header.css" />
+    <link rel="stylesheet" href="~/Content/css/menu.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600&amp;subset=cyrillic" rel="stylesheet">
     <title>Menu</title>
 </head>
-<body>
-    <div> 
-        <div>
-            @using (Html.BeginForm("Show", "Schedule", FormMethod.Get))
-            {
-                @:Расписание на
-                <select name="month">
-                    <option value="1">январь</option>
-                    <option value="2">февраль</option>
-                    <option value="3">март</option>
-                    <option value="4">апрель</option>
-                    <option value="5">май</option>
-                    <option value="6">июнь</option>
-                    <option value="7">июль</option>
-                    <option value="8">август</option>
-                    <option value="9">сентябрь</option>
-                    <option value="10">октябрь</option>
-                    <option value="11">ноябрь</option>
-                    <option value="12">декабрь</option>
-                </select>
-                @:для ресторана
-                <select name="restaurantId">
-                    @foreach (Restaurants.Models.Restaurant restaurant in ViewBag.Restaurants)
-                    {
-                        <option value="@restaurant.Id">@restaurant.Id</option>
-                    }
-                </select>
-                <input name="request" type="submit" value="Составить">
-                <input name="request" type="submit" value="Показать">
-            }
-        </div>
-    </div>
+<body> 
+    <table id="header">
+        <tr>
+            <td>
+                @using (Html.BeginForm("Show", "Schedule", FormMethod.Get))
+                {
+                    @:Расписание на
+                    <select name="month">
+                        <option value="1">январь</option>
+                        <option value="2">февраль</option>
+                        <option value="3">март</option>
+                        <option value="4">апрель</option>
+                        <option value="5">май</option>
+                        <option value="6">июнь</option>
+                        <option value="7">июль</option>
+                        <option value="8">август</option>
+                        <option value="9">сентябрь</option>
+                        <option value="10">октябрь</option>
+                        <option value="11">ноябрь</option>
+                        <option value="12">декабрь</option>
+                    </select>
+                    @:для ресторана
+                    <select name="restaurantId" style="margin-right: 20px">
+                        @foreach (Restaurants.Models.Restaurant restaurant in ViewBag.Restaurants)
+                        {
+                            <option value="@restaurant.Id">@restaurant.Id</option>
+                        }
+                    </select>
+                    <input class="headerButton" name="request" type="submit" value="Составить">
+                    <input class="headerButton" name="request" type="submit" value="Показать">
+                }
+            </td>
+        </tr>      
+    </table>
+    @using (Html.BeginForm("Index", "Home", FormMethod.Get))
+    {
+        <input id="back" class="headerButton" type="submit" value="Вернуться" />
+    }
 </body>
 </html>

@@ -1,0 +1,30 @@
+﻿#header {
+    height: 40px;
+    text-align: center;
+    border-spacing: 0;
+}
+
+
+#header tr td {
+    padding: 0;
+}
+
+
+select {
+    height: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-left: 2px;
+    padding-right: 2px;
+    border: none;
+    background-color: #F5F5F5;
+    color: #444444;
+}
+
+
+select:active, :focus {
+    outline: none;
+}
+
+
+
