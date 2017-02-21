@@ -92,14 +92,18 @@
 
                                 string fromClass, toClass;
                                 fromClass = toClass = "inTime";
-                                if (i > 0 && schedule.Date == lastDate && schedule.From < ViewBag.ScheduleList[i - 1].To)
-                                {
+                                if (lastDate != null && schedule.Date == lastDate && schedule.From < ViewBag.ScheduleList[i - 1].To) {
                                     fromClass = "beginsEarly";
                                 }
+                                else if (schedule.Date != lastDate && schedule.From.Hours > 10)
+                                {
+                                    fromClass = "notInTime";
+                                }
+
                                 if (i < ViewBag.ScheduleList.Count - 1 && schedule.Date != ViewBag.ScheduleList[i + 1].Date &&
                                                 !schedule.To.Equals(new TimeSpan(0, 0, 0)))
                                 {
-                                    toClass = "endsEarly";
+                                    toClass = "notInTime";
                                 }
 
                                 lastDate = schedule.Date;

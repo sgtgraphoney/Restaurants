@@ -341,7 +341,7 @@ function sendDeleteReqest(id, $row) {
 
 function deleteEmployee(button) {
     var $row = $(button).parent().parent();
-    var id = $row.children().first().next().text();
+    var id = $row.children().first().text();
     sendDeleteReqest(id, $row);
 }
 
@@ -351,7 +351,14 @@ function placeDataIntoRow($row, data) {
 
     if (data === null) {
 
+        $shiftInfoChildren = $rowChildren.eq(4).children();
+        $shiftInfoChildren.first().empty();
+        $shiftInfoChildren.last().empty();
+
         for (var i = 0; i < $rowChildren.length - 1; i++) {
+            if (i == 4) {
+                continue;
+            }
             $rowChildren.eq(i).empty();
         }
 

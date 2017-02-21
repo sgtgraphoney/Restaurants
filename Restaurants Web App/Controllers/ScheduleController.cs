@@ -11,27 +11,26 @@ namespace Restaurants.Controllers
 
     public class ScheduleController : Controller
     {
-        public static readonly Dictionary<Months, int> DaysInMonth;
+        public static readonly int[] DaysInMonth = new int[MonthsInYear];
 
         private const int HoursInShift = 7, StartTime = 10, EndTime = 24;
+        private const int MonthsInYear = 12;
 
         static ScheduleController()
         {
-            DaysInMonth = new Dictionary<Months, int>()
-            {
-                { Months.January, 31 },
-                { Months.February, 28 },
-                { Months.March, 31 },
-                { Months.April, 30 },
-                { Months.May, 31 },
-                { Months.June, 30 },
-                { Months.July, 31 },
-                { Months.August, 31 },
-                { Months.September, 30 },
-                { Months.October, 31 },
-                { Months.November, 30 },
-                { Months.December, 31 },
-            };
+            int i = 0;
+            DaysInMonth[i++] = 31;
+            DaysInMonth[i++] = 28;
+            DaysInMonth[i++] = 31;
+            DaysInMonth[i++] = 30;
+            DaysInMonth[i++] = 31;
+            DaysInMonth[i++] = 30;
+            DaysInMonth[i++] = 31;
+            DaysInMonth[i++] = 31;
+            DaysInMonth[i++] = 30;
+            DaysInMonth[i++] = 31;
+            DaysInMonth[i++] = 30;
+            DaysInMonth[i++] = 31;
         }
 
         private EmployeeContext db = new EmployeeContext();
@@ -48,6 +47,11 @@ namespace Restaurants.Controllers
         [HttpGet]
         public ActionResult Show(string request, int month, int restaurantId)
         {
+            if (request == null)
+            {
+                return null;
+            }
+
             if (request.Equals("Составить"))
             {
                 var old = from schedule in db.Schedules
@@ -97,9 +101,9 @@ namespace Restaurants.Controllers
         {
             List<Employee> employees = db.Employees.Include("Attestations").ToList();
 
-            for (int i = 1; i <= DaysInMonth[(Months)month]; i++)
+            for (int i = 1; i <= DaysInMonth[month - 1]; i++)
             {
-                EmployeeList workingToday = new EmployeeList(employees.FindAll(e => WorksToday(e, (int)month, i)));
+                EmployeeList workingToday = new EmployeeList(employees.FindAll(e => WorksToday(e, month, i)));
                 workingToday.Sort(new EmployeeComparer());
 
                 foreach (Restaurant r in db.Restaurants)
@@ -200,10 +204,16 @@ namespace Restaurants.Controllers
                         scheduleItem.Restaurant = r;
                         scheduleItem.EmployeeId = e.Id;
                         scheduleItem.Employee = e;
-                        scheduleItem.Date = Today(e, (int)month, i);
+                        scheduleItem.Date = Today(month, i);
 
-                        if (e.Shift == null || e.Shift.Equals("вечерняя"))
+                        bool eveningShift = false;
+                        if (e.Shift == null || (eveningShift = e.Shift.Equals("вечерняя")))
                         {
+                            if (eveningShift && totalHours < HoursInShift)
+                            {
+                                totalHours = HoursInShift;
+                            }
+
                             if (totalHours + e.AmountOfWorkingHours <= HoursInShift * 2)
                             {
                                 scheduleItem.From = new TimeSpan(StartTime + totalHours, 0, 0);
@@ -248,20 +258,24 @@ namespace Restaurants.Controllers
             int workingDaysAmount = Int32.Parse(e.Session.Substring(0, 1));
             int weekendAmount = Int32.Parse(e.Session.Substring(2, 1));
 
-            DateTime now = Today(e, month, day);
+            DateTime now = Today(month, day);
+            if (now < e.FirstWorkingDay)
+            {
+                return false;
+            }
 
             TimeSpan diff = now - e.FirstWorkingDay;
             return (diff.TotalDays + 1) % (workingDaysAmount + weekendAmount) < workingDaysAmount;
         }
 
 
-        private DateTime Today(Employee e, int month, int day)
+        private DateTime Today(int month, int day)
         {
-            int year = e.FirstWorkingDay.Year;
-            if (month < e.FirstWorkingDay.Month)
+            int year = DateTime.Now.Year;
+            if (month < DateTime.Now.Month)
             {
                 year++;
-            };
+            }
             return new DateTime(year, month, day);
         }
 
@@ -286,23 +300,6 @@ namespace Restaurants.Controllers
                 return 0;
             }
         }
-    }
-
-
-    public enum Months
-    {
-        January = 1,
-        February,
-        March,
-        April,
-        May,
-        June,
-        July,
-        August,
-        September,
-        October,
-        November,
-        December
     }
 
 }
