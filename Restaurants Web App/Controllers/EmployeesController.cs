@@ -1,31 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization.Json;
 using System.Text.RegularExpressions;
-using System.Web;
 using System.Web.Mvc;
 using Restaurants.Models;
 
 namespace Restaurants.Controllers
 {
-    /**
-     * This controller is responsible for handling requests that change information about cooks.
-     * It returns the only page with all necessary information.
-     * Updating and deleting requests are sent with ajax.
-     * All information about employees is taken from a connected database.
-     * All changes are written to database after validation.
-     */
+    /// <summary>
+    /// This controller is responsible for handling requests that change information about cooks.
+    /// It returns the only page with all necessary information.
+    /// All information about employees is taken from a connected database.
+    /// </summary>
     public class EmployeesController : Controller
     {
 
         private EmployeeContext db = new EmployeeContext();
 
 
-        /**
-         * Returns a page with a list of cooks. 
-         * On this page you can edit information about the cooks.
-         */
+        /// <summary>
+        /// Shows a page with a list of cooks. 
+        /// On this page you can edit information about cooks.
+        /// </summary>
+        /// <returns>A view with the list of cooks</returns>
         [HttpGet]
         public ActionResult EmployeeEditor()
         {
@@ -35,10 +32,12 @@ namespace Restaurants.Controllers
         }
 
 
-        /**
-         * This method is used for ajax updating requests.
-         * It updates information about cocks.
-         */
+        /// <summary>
+        /// This method is used for ajax updating requests.
+        /// It updates information about cooks in a database.
+        /// </summary>
+        /// <param name="employee">An <see cref="Employee"> instance recieved from client</param>
+        /// <returns>Json string with the "data" or "message" field depending on "success" field</returns>
         [HttpPost]
         public JsonResult Update(Employee employee)
         { 
@@ -73,11 +72,12 @@ namespace Restaurants.Controllers
 
         }
 
-
-        /**
-         * This method is used for ajax daleting requests.
-         * It removes all information about the specified cook.
-         */
+        /// <summary>
+        /// This method is used for ajax daleting requests.
+        /// It removes all information about the specified cook from a database.
+        /// </summary>
+        /// <param name="id">Id of the cook</param>
+        /// <returns>Json strinf with the "success" field</returns>
         [HttpPost]
         public JsonResult Delete(int id)
         {

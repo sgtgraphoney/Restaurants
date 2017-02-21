@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.SqlServer;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 using Restaurants.Models;
 
 namespace Restaurants.Controllers
 {
-
+    /// <summary>
+    /// <c>ScheduleController</c> is responsible for handling requests that relate to the schedule.
+    /// </summary>
     public class ScheduleController : Controller
     {
-        public static readonly int[] DaysInMonth = new int[MonthsInYear];
+        public const string MorningShift = "утренняя", EveningShift = "вечерняя";
+        public const int HoursInShift = 7;
 
-        private const int HoursInShift = 7, StartTime = 10, EndTime = 24;
+        private static readonly int[] DaysInMonth = new int[MonthsInYear];
+
+        private const int StartTime = 10, EndTime = 24;
         private const int MonthsInYear = 12;
 
         static ScheduleController()
@@ -36,6 +39,10 @@ namespace Restaurants.Controllers
         private EmployeeContext db = new EmployeeContext();
 
 
+        /// <summary>
+        /// Shows the scheduling menu. It contains buttons for generating and displaying schedules.
+        /// </summary>
+        /// <returns>A view with the menu.</returns>
         [HttpGet]
         public ActionResult Menu()
         {
@@ -44,15 +51,27 @@ namespace Restaurants.Controllers
         }
 
 
+        /// <summary>
+        /// Shows a schedule for the specified month if the "Show" button on the menu page is pressed. 
+        /// Generates a new schedule if the "Generate" button is pressed.
+        /// </summary>
+        /// <remarks>
+        /// Unfortunately it can't take into account the attestations :(
+        /// Therefore the scedule is generated like there's no any cuisines in the rastaurants.
+        /// </remarks>
+        /// <param name="request">A value from a pressed button</param>
+        /// <param name="month">A month that a schedule should be generated for</param>
+        /// <param name="restaurantId">A restaurant that a schedule should be generated for</param>
+        /// <returns>A view with schedule if parameters are correct or an error page otherwise</returns>
         [HttpGet]
         public ActionResult Show(string request, int month, int restaurantId)
         {
-            if (request == null)
+            if (month < 1 || month > 12 || db.Restaurants.First(x => x.Id == restaurantId) == null)
             {
                 return null;
             }
 
-            if (request.Equals("Составить"))
+            if (request == "Составить")
             {
                 var old = from schedule in db.Schedules
                           where schedule.Date.Month == month && schedule.RestaurantId == restaurantId
@@ -61,12 +80,12 @@ namespace Restaurants.Controllers
                 db.Schedules.RemoveRange(old);
                 db.SaveChanges();
 
-                GenerateSchedule(month);
+                GenerateSchedule(month, restaurantId);
 
                 SelectSchedule(month, restaurantId);
                 return View();
             }
-            else if (request.Equals("Показать"))
+            else if (request == "Показать")
             {
                 SelectSchedule(month, restaurantId);
 
@@ -82,6 +101,7 @@ namespace Restaurants.Controllers
         }
 
 
+        // Writes a schedule for the specified month and restaurant into ViewBag.
         private void SelectSchedule(int month, int restaurantId)
         {
             var scheduleList = from schedule in db.Schedules.Include("Employee")
@@ -97,7 +117,7 @@ namespace Restaurants.Controllers
         }
 
 
-        private void GenerateSchedule(int month)
+        private void GenerateSchedule(int month, int restaurantId)
         {
             List<Employee> employees = db.Employees.Include("Attestations").ToList();
 
@@ -106,153 +126,159 @@ namespace Restaurants.Controllers
                 EmployeeList workingToday = new EmployeeList(employees.FindAll(e => WorksToday(e, month, i)));
                 workingToday.Sort(new EmployeeComparer());
 
-                foreach (Restaurant r in db.Restaurants)
+                Restaurant restaurant = db.Restaurants.First(x => x.Id == restaurantId);
+
+                List<Employee> selected = new List<Employee>();
+                int totalHours = 0;
+
+                Employee current = workingToday.FirstAppropriate(totalHours, selected);
+
+                while (true)
                 {
-                    List<Employee> selected = new List<Employee>();
-                    int totalHours = 0;
 
-                    Employee current = workingToday.FirstAppropriate(totalHours, selected);
-
-                    while (true)
+                    if (current == null)
                     {
-
-                        if (current == null)
+                        if (totalHours < HoursInShift)
                         {
-                            if (totalHours < HoursInShift)
+                            totalHours = 0;
+
+                            Employee next = workingToday.LastAppropriate(totalHours, selected);
+                            if (next != null)
                             {
-                                totalHours = 0;
-
-                                Employee next = workingToday.LastAppropriate(totalHours, selected);
-                                if (next != null)
-                                {
-                                    selected.Add(next);
-                                }
-                                
-                                totalHours = HoursInShift;
-
-                                if ((current = workingToday.FirstAppropriate(totalHours, selected)) == null)
-                                {
-                                    break;
-                                }
+                                selected.Add(next);
                             }
-                            else
+
+                            totalHours = HoursInShift;
+
+                            if ((current = workingToday.FirstAppropriate(totalHours, selected)) == null)
                             {
                                 break;
                             }
                         }
-
-                        if (totalHours + current.AmountOfWorkingHours < HoursInShift * 2)
+                        else
                         {
-                            selected.Add(current);
-                            totalHours += current.AmountOfWorkingHours;
-                            current = workingToday.FirstAppropriate(totalHours, selected);
-                            continue;
-                        }
-                        else if (totalHours + current.AmountOfWorkingHours == HoursInShift * 2)
-                        {
-                            selected.Add(current);
-                            totalHours += current.AmountOfWorkingHours;
                             break;
+                        }
+                    }
+
+                    if (totalHours + current.AmountOfWorkingHours < HoursInShift * 2)
+                    {
+                        selected.Add(current);
+                        totalHours += current.AmountOfWorkingHours;
+                        current = workingToday.FirstAppropriate(totalHours, selected);
+                        continue;
+                    }
+                    else if (totalHours + current.AmountOfWorkingHours == HoursInShift * 2)
+                    {
+                        selected.Add(current);
+                        totalHours += current.AmountOfWorkingHours;
+                        break;
+                    }
+                    else
+                    {
+                        Employee next = workingToday.NextAppropriate(workingToday.IndexOf(current) + 1, totalHours, selected);
+                        if (next != null)
+                        {
+                            current = next;
                         }
                         else
                         {
-                            Employee next = workingToday.NextAppropriate(workingToday.IndexOf(current) + 1, totalHours, selected);
-                            if (next != null)
+                            Employee last = selected.Last();
+
+                            selected.Remove(last);
+                            totalHours -= last.AmountOfWorkingHours;
+
+                            next = workingToday.NextAppropriate(workingToday.IndexOf(last) + 1, totalHours, selected);
+                            if (next == null)
                             {
-                                current = next;
+                                selected.Add(last);
+                                totalHours += last.AmountOfWorkingHours;
+
+                                selected.Add(current);
+                                totalHours += current.AmountOfWorkingHours;
+                                break;
                             }
                             else
                             {
-                                Employee last = selected.Last();
+                                selected.Add(next);
+                                totalHours += next.AmountOfWorkingHours;
 
-                                selected.Remove(last);
-                                totalHours -= last.AmountOfWorkingHours;
-
-                                next = workingToday.NextAppropriate(workingToday.IndexOf(last) + 1, totalHours, selected);
-                                if (next == null)
-                                {
-                                    selected.Add(last);
-                                    totalHours += last.AmountOfWorkingHours;
-
-                                    selected.Add(current);
-                                    totalHours += current.AmountOfWorkingHours;
-                                    break;
-                                }
-                                else
-                                {
-                                    selected.Add(next);
-                                    totalHours += next.AmountOfWorkingHours;
-
-                                    current = workingToday.FirstAppropriate(totalHours, selected);
-                                }
+                                current = workingToday.FirstAppropriate(totalHours, selected);
                             }
                         }
-
                     }
-
-                    List<Schedule> scheduleItems = new List<Schedule>();
-
-                    totalHours = 0;
-
-                    foreach (Employee e in selected)
-                    {
-                        workingToday.Remove(e);
-
-                        Schedule scheduleItem = new Schedule();
-
-                        scheduleItem.RestaurantId = r.Id;
-                        scheduleItem.Restaurant = r;
-                        scheduleItem.EmployeeId = e.Id;
-                        scheduleItem.Employee = e;
-                        scheduleItem.Date = Today(month, i);
-
-                        bool eveningShift = false;
-                        if (e.Shift == null || (eveningShift = e.Shift.Equals("вечерняя")))
-                        {
-                            if (eveningShift && totalHours < HoursInShift)
-                            {
-                                totalHours = HoursInShift;
-                            }
-
-                            if (totalHours + e.AmountOfWorkingHours <= HoursInShift * 2)
-                            {
-                                scheduleItem.From = new TimeSpan(StartTime + totalHours, 0, 0);
-                                totalHours += e.AmountOfWorkingHours;
-                                scheduleItem.To = new TimeSpan((StartTime + totalHours) % 24, 0, 0);
-                            }
-                            else
-                            {
-                                scheduleItem.From = new TimeSpan(StartTime + HoursInShift * 2 - e.AmountOfWorkingHours, 0, 0);
-                                scheduleItem.To = new TimeSpan(0, 0, 0);
-                            }
-                        }
-                        else if (e.Shift.Equals("утренняя"))
-                        {
-                            if (totalHours + e.AmountOfWorkingHours <= HoursInShift)
-                            {
-                                scheduleItem.From = new TimeSpan(StartTime + totalHours, 0, 0);
-                                totalHours += e.AmountOfWorkingHours;
-                                scheduleItem.To = new TimeSpan(StartTime + totalHours, 0, 0);
-                            }
-                            else
-                            {
-                                scheduleItem.From = new TimeSpan(StartTime + HoursInShift - e.AmountOfWorkingHours, 0, 0);
-                                totalHours = HoursInShift;
-                                scheduleItem.To = new TimeSpan(StartTime + HoursInShift, 0, 0);
-                            }
-                        }
-
-                        scheduleItems.Add(scheduleItem);
-                    }
-
-                    db.Schedules.AddRange(scheduleItems);
                 }
+
+                WriteScheduleListToDatabase(workingToday, selected, restaurant, month, i);
             }
 
             db.SaveChanges();
         }
 
 
+        private void WriteScheduleListToDatabase(List<Employee> workingToday, List<Employee> selected,
+            Restaurant restaurant, int month, int day)
+        {
+            List<Schedule> scheduleItems = new List<Schedule>();
+
+            int totalHours = 0;
+
+            foreach (Employee e in selected)
+            {
+                workingToday.Remove(e);
+
+                Schedule scheduleItem = new Schedule();
+
+                scheduleItem.RestaurantId = restaurant.Id;
+                scheduleItem.Restaurant = restaurant;
+                scheduleItem.EmployeeId = e.Id;
+                scheduleItem.Employee = e;
+                scheduleItem.Date = Today(month, day);
+
+                bool eveningShift = false;
+                if (e.Shift == null || (eveningShift = e.Shift == EveningShift))
+                {
+                    if (eveningShift && totalHours < HoursInShift)
+                    {
+                        totalHours = HoursInShift;
+                    }
+
+                    if (totalHours + e.AmountOfWorkingHours <= HoursInShift * 2)
+                    {
+                        scheduleItem.From = new TimeSpan(StartTime + totalHours, 0, 0);
+                        totalHours += e.AmountOfWorkingHours;
+                        scheduleItem.To = new TimeSpan((StartTime + totalHours) % 24, 0, 0);
+                    }
+                    else
+                    {
+                        scheduleItem.From = new TimeSpan(StartTime + HoursInShift * 2 - e.AmountOfWorkingHours, 0, 0);
+                        scheduleItem.To = new TimeSpan(0, 0, 0);
+                    }
+                }
+                else if (e.Shift == MorningShift)
+                {
+                    if (totalHours + e.AmountOfWorkingHours <= HoursInShift)
+                    {
+                        scheduleItem.From = new TimeSpan(StartTime + totalHours, 0, 0);
+                        totalHours += e.AmountOfWorkingHours;
+                        scheduleItem.To = new TimeSpan(StartTime + totalHours, 0, 0);
+                    }
+                    else
+                    {
+                        scheduleItem.From = new TimeSpan(StartTime + HoursInShift - e.AmountOfWorkingHours, 0, 0);
+                        totalHours = HoursInShift;
+                        scheduleItem.To = new TimeSpan(StartTime + HoursInShift, 0, 0);
+                    }
+                }
+
+                scheduleItems.Add(scheduleItem);
+            }
+
+            db.Schedules.AddRange(scheduleItems);
+        }
+
+
+        // Checks whether an employee works on the specified day.
         private bool WorksToday(Employee e, int month, int day)
         {
             int workingDaysAmount = Int32.Parse(e.Session.Substring(0, 1));
@@ -283,7 +309,8 @@ namespace Restaurants.Controllers
     }
 
 
-    class EmployeeComparer : Comparer<Employee>
+    // Employees are sorted in descending order of amount of working hours.
+    internal class EmployeeComparer : Comparer<Employee>
     {
         public override int Compare(Employee x, Employee y)
         {
