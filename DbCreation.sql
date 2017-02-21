@@ -41,7 +41,6 @@ GO
 
 CREATE TABLE dbo.Restaurants (
 	Id INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
-	[Address] VARCHAR(50) NOT NULL
 );
 GO
 
