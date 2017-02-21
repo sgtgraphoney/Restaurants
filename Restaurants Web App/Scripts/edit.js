@@ -54,18 +54,19 @@ var EditManager = (function () {
         var $row = Row.getCurrentRow();
 
         var personalData = [];
-        for (var i = 0; i < 7; i++) {
-            if (i == 4) {
+        for (var i = 0; i < Constants.Columns.ATTESTATIONS; i++) {
+            if (i == Constants.Columns.SESSION) {
                 continue;
             }
             personalData[i] = $row.children().eq(i).html();
         }
 
-        var shiftInfo = [];
-        shiftInfo[0] = $row.children().eq(4).children().first().text();
-        shiftInfo[1] = $row.children().eq(4).children().last().text();
+        var sessionInfo = [];
+        var $sessionCellChildren = $row.children().eq(Constants.Columns.SESSION).children();
+        sessionInfo[0] = $sessionCellChildren.first().text();
+        sessionInfo[1] = $sessionCellChildren.last().text();
 
-        var $attestationElements = $row.children().eq(7).children();
+        var $attestationElements = $row.children().eq(Constants.Columns.ATTESTATIONS).children();
         var attestations = [];
         for (i = 0; i < $attestationElements.length; i++) {
             attestations[i] = $attestationElements.eq(i).text();
@@ -78,16 +79,19 @@ var EditManager = (function () {
 
         $rowChildren = $row.children();
         $rowChildren.first().html(personalData[0]);
-        $rowChildren.eq(4).children().first().children().first().val(shiftInfo[0]);
-        $rowChildren.eq(4).children().last().children().first().val(shiftInfo[1]);
-        for (i = 1; i < 7; i++) {
-            if (i == 4) {
+
+        $sessionCellChildren = $rowChildren.eq(Constants.Columns.SESSION).children();
+        $sessionCellChildren.first().children().first().val(sessionInfo[0]);
+        $sessionCellChildren.last().children().first().val(sessionInfo[1]);
+
+        for (i = 1; i < Constants.Columns.ATTESTATIONS; i++) {
+            if (i == Constants.Columns.SESSION) {
                 continue;
             }
             $rowChildren.eq(i).children().first().val(personalData[i]);
         }
 
-        $attestationElements = $row.children().eq(7).children();
+        $attestationElements = $row.children().eq(Constants.Columns.ATTESTATIONS).children();
         for (i = 0; i < $attestationElements.length; i++) {
             for (var j = 0; j < attestations.length; j++) {
                 if ($attestationElements.eq(i).children().last().text() == attestations[j]) {
@@ -113,10 +117,10 @@ var EditManager = (function () {
         // If incorrect information has been entered, then nothing will be sent.
         if (button.value == Constants.Buttons.SAVE) {
             var $rowChildren = $row.children();
-            var $lastNameInput = $rowChildren.eq(1).children().first(),
-                $firstNameInput = $rowChildren.eq(2).children().first(),
-                $patronymicInput = $rowChildren.eq(3).children().first(),
-                $dateInput = $rowChildren.eq(4).children().last().children().first();
+            var $lastNameInput = $rowChildren.eq(Constants.Columns.LAST_NAME).children().first(),
+                $firstNameInput = $rowChildren.eq(Constants.Columns.FIRST_NAME).children().first(),
+                $patronymicInput = $rowChildren.eq(Constants.Columns.PATRONYMIC).children().first(),
+                $dateInput = $rowChildren.eq(Constants.Columns.SESSION).children().last().children().first();
 
             var validLastName = validateName($lastNameInput.val()),
                 validFirstName = validateName($firstNameInput.val()),
@@ -134,7 +138,7 @@ var EditManager = (function () {
                 return;
             }
 
-            var $attestationElements = $rowChildren.eq(7).children();
+            var $attestationElements = $rowChildren.eq(Constants.Columns.ATTESTATIONS).children();
             var attestations = [],
                 count = 0;
             for (var i = 0; i < $attestationElements.length; i++) {
@@ -147,13 +151,13 @@ var EditManager = (function () {
 
             // Id "-1" is assigned to a new employee. 
             sendUpdatedEmployee({
-                Id: $rowChildren.eq(0).text() || -1,
+                Id: $rowChildren.eq(Constants.Columns.ID).text() || -1,
                 FirstName: $firstNameInput.val(),
                 Patronymic: $patronymicInput.val(),
                 LastName: $lastNameInput.val(),
-                Shift: $rowChildren.eq(5).children().first().val(),               
-                AmountOfWorkingHours: $rowChildren.eq(6).children().first().val(),
-                Session: $rowChildren.eq(4).children().first().children().first().val(),
+                Shift: $rowChildren.eq(Constants.Columns.SHIFT).children().first().val(),
+                AmountOfWorkingHours: $rowChildren.eq(Constants.Columns.AMOUNT_OF_WORKING_HOURS).children().first().val(),
+                Session: $rowChildren.eq(Constants.Columns.SESSION).children().first().children().first().val(),
                 FirstWorkingDay: (new Date(validatedDate)).toDateString(),
                 Attestations: attestations
             }, $row);
@@ -210,8 +214,7 @@ var EditManager = (function () {
 
 
     function validateDate(dateString) {
-        var pattern = /^\d?\d\.\d?\d\.\d{1,4}$/;
-        if (pattern.test(dateString)) {
+        if (/^\d?\d\.\d?\d\.\d{1,4}$/.test(dateString)) {
             var day = parseInt(/^(\d+)/.exec(dateString)[1]);
             var month = parseInt(/^\d+\.(\d+)/.exec(dateString)[1]);
             var year = /(\d+)$/.exec(dateString)[1];
@@ -222,7 +225,7 @@ var EditManager = (function () {
             year = parseInt(year);
 
             var now = (new Date()).getFullYear();
-            if (month > 0 && month <= 12 && day > 0 && day <= daysInMonth[month - 1] &&
+            if (month > 0 && month <= 12 && day > 0 && day <= DAYS_IN_MONTH[month - 1] &&
                 (year >= 1970 && year <= now) || ((year + "").length <= 2 && year <= now % 100)) {
                 return month + "." + day + "." + year;
             } else {
@@ -235,9 +238,10 @@ var EditManager = (function () {
     }
 
 
-    var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 
+    // Paints a text input in red or original color depending on "isValid" parameter.
     function colorTextInput($input, isValid) {
         if (isValid) {
             $input.css({
@@ -351,12 +355,12 @@ function placeDataIntoRow($row, data) {
 
     if (data === null) {
 
-        $shiftInfoChildren = $rowChildren.eq(4).children();
+        $shiftInfoChildren = $rowChildren.eq(Constants.Columns.SESSION).children();
         $shiftInfoChildren.first().empty();
         $shiftInfoChildren.last().empty();
 
         for (var i = 0; i < $rowChildren.length - 1; i++) {
-            if (i == 4) {
+            if (i == Constants.Columns.SESSION) {
                 continue;
             }
             $rowChildren.eq(i).empty();
@@ -364,27 +368,29 @@ function placeDataIntoRow($row, data) {
 
     } else {
 
-        $rowChildren.eq(0).text(data.Id);
-        $rowChildren.eq(1).text(data.LastName);
-        $rowChildren.eq(2).text(data.FirstName);
-        $rowChildren.eq(3).text(data.Patronymic);
+        $rowChildren.eq(Constants.Columns.ID).text(data.Id);
+        $rowChildren.eq(Constants.Columns.LAST_NAME).text(data.LastName);
+        $rowChildren.eq(Constants.Columns.FIRST_NAME).text(data.FirstName);
+        $rowChildren.eq(Constants.Columns.PATRONYMIC).text(data.Patronymic);
 
-        $sessionInfo = $rowChildren.eq(4).children();
+        $sessionInfo = $rowChildren.eq(Constants.Columns.SESSION).children();
         $sessionInfo.first().text(data.Session);
         $sessionInfo.last().text(formatDate(new Date(data.FirstWorkingDay)));
 
-        $rowChildren.eq(5).text(data.Shift);
-        $rowChildren.eq(6).text(data.AmountOfWorkingHours);
+        $rowChildren.eq(Constants.Columns.SHIFT).text(data.Shift);
+        $rowChildren.eq(Constants.Columns.AMOUNT_OF_WORKING_HOURS).text(data.AmountOfWorkingHours);
 
-        $rowChildren.eq(7).empty();
+        $rowChildren.eq(Constants.Columns.ATTESTATIONS).empty();
         for (var i = 0; i < data.Attestations.length; i++) {
-            $rowChildren.eq(7).append('<div class="specialization">' + data.Attestations[i].Specialization + '</div>');
+            $rowChildren.eq(Constants.Columns.ATTESTATIONS).append('<div class="specialization">'
+                + data.Attestations[i].Specialization + '</div>');
         }
 
     }   
 }
 
 
+// Returns a string with date in "dd.mm.yyyy" format.
 function formatDate(date) {
     var day = date.getDate();
     if (day < 10) {
@@ -466,3 +472,17 @@ Constants.Tables = {
     EMPLOYEES: "#employees",
     HIDDEN_EDIT_ROW: "#hiddenEditRow"
 }
+
+Constants.Columns = (function () {
+    var i = 0;
+    return {
+        ID: i++,
+        LAST_NAME: i++,
+        FIRST_NAME: i++,
+        PATRONYMIC: i++,
+        SESSION: i++,
+        SHIFT: i++,
+        AMOUNT_OF_WORKING_HOURS: i++,
+        ATTESTATIONS: i++
+    };
+})();
