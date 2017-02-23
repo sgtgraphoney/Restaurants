@@ -10,6 +10,5 @@ namespace Restaurants.Models
     {
         [Key]
         public int Id { get; set; }
-        public string Address { get; set; }
     }
 }

@@ -53,7 +53,7 @@ namespace Restaurants.Controllers
 
         /// <summary>
         /// Shows a schedule for the specified month if the "Show" button on the menu page is pressed. 
-        /// Generates a new schedule if the "Generate" button is pressed.
+        /// Generates a new schedule FOR ALL restaurants and shows FOR SPECIFIED if the "Generate" button is pressed.
         /// </summary>
         /// <remarks>
         /// Unfortunately it can't take into account the attestations :(
@@ -68,7 +68,7 @@ namespace Restaurants.Controllers
         {
             if (month < 1 || month > 12 || db.Restaurants.First(x => x.Id == restaurantId) == null)
             {
-                return null;
+                return new HttpStatusCodeResult(400);
             }
 
             if (request == "Составить")
@@ -96,7 +96,7 @@ namespace Restaurants.Controllers
             }
             else
             {
-                return null;
+                return new HttpStatusCodeResult(400);
             }            
         }
 
@@ -126,90 +126,97 @@ namespace Restaurants.Controllers
                 EmployeeList workingToday = new EmployeeList(employees.FindAll(e => WorksToday(e, month, i)));
                 workingToday.Sort(new EmployeeComparer());
 
-                Restaurant restaurant = db.Restaurants.First(x => x.Id == restaurantId);
-
-                List<Employee> selected = new List<Employee>();
-                int totalHours = 0;
-
-                Employee current = workingToday.FirstAppropriate(totalHours, selected);
-
-                while (true)
+                foreach (Restaurant restaurant in db.Restaurants)
                 {
+                    List<Employee> selected = new List<Employee>();
+                    int totalHours = 0;
 
-                    if (current == null)
+                    Employee current = workingToday.FirstAppropriate(totalHours, selected);
+
+                    while (true)
                     {
-                        if (totalHours < HoursInShift)
-                        {
-                            totalHours = 0;
 
-                            Employee next = workingToday.LastAppropriate(totalHours, selected);
-                            if (next != null)
+                        if (current == null)
+                        {
+                            if (totalHours < HoursInShift)
                             {
-                                selected.Add(next);
-                            }
+                                totalHours = 0;
 
-                            totalHours = HoursInShift;
+                                Employee next = workingToday.LastAppropriate(totalHours, selected);
+                                if (next != null)
+                                {
+                                    selected.Add(next);
+                                }
 
-                            if ((current = workingToday.FirstAppropriate(totalHours, selected)) == null)
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
+                                totalHours = HoursInShift;
 
-                    if (totalHours + current.AmountOfWorkingHours < HoursInShift * 2)
-                    {
-                        selected.Add(current);
-                        totalHours += current.AmountOfWorkingHours;
-                        current = workingToday.FirstAppropriate(totalHours, selected);
-                        continue;
-                    }
-                    else if (totalHours + current.AmountOfWorkingHours == HoursInShift * 2)
-                    {
-                        selected.Add(current);
-                        totalHours += current.AmountOfWorkingHours;
-                        break;
-                    }
-                    else
-                    {
-                        Employee next = workingToday.NextAppropriate(workingToday.IndexOf(current) + 1, totalHours, selected);
-                        if (next != null)
-                        {
-                            current = next;
-                        }
-                        else
-                        {
-                            Employee last = selected.Last();
-
-                            selected.Remove(last);
-                            totalHours -= last.AmountOfWorkingHours;
-
-                            next = workingToday.NextAppropriate(workingToday.IndexOf(last) + 1, totalHours, selected);
-                            if (next == null)
-                            {
-                                selected.Add(last);
-                                totalHours += last.AmountOfWorkingHours;
-
-                                selected.Add(current);
-                                totalHours += current.AmountOfWorkingHours;
-                                break;
+                                if ((current = workingToday.FirstAppropriate(totalHours, selected)) == null)
+                                {
+                                    break;
+                                }
                             }
                             else
                             {
-                                selected.Add(next);
-                                totalHours += next.AmountOfWorkingHours;
+                                break;
+                            }
+                        }
 
-                                current = workingToday.FirstAppropriate(totalHours, selected);
+                        if (totalHours + current.AmountOfWorkingHours < HoursInShift * 2)
+                        {
+                            selected.Add(current);
+                            totalHours += current.AmountOfWorkingHours;
+                            current = workingToday.FirstAppropriate(totalHours, selected);
+                            continue;
+                        }
+                        else if (totalHours + current.AmountOfWorkingHours == HoursInShift * 2)
+                        {
+                            selected.Add(current);
+                            totalHours += current.AmountOfWorkingHours;
+                            break;
+                        }
+                        else
+                        {
+                            Employee next = workingToday.NextAppropriate(workingToday.IndexOf(current) + 1, totalHours, selected);
+                            if (next != null)
+                            {
+                                current = next;
+                            }
+                            else
+                            {
+                                Employee last = selected.Count > 0 ? selected.Last() : null;
+
+                                if (last != null)
+                                {
+                                    selected.Remove(last);
+                                    totalHours -= last.AmountOfWorkingHours;
+                                }                               
+
+                                next = workingToday.NextAppropriate(workingToday.IndexOf(last) + 1, totalHours, selected);
+                                if (next == null)
+                                {
+                                    if (last != null)
+                                    {
+                                        selected.Add(last);
+                                        totalHours += last.AmountOfWorkingHours;
+                                    }                                    
+
+                                    selected.Add(current);
+                                    totalHours += current.AmountOfWorkingHours;
+                                    break;
+                                }
+                                else
+                                {
+                                    selected.Add(next);
+                                    totalHours += next.AmountOfWorkingHours;
+
+                                    current = workingToday.FirstAppropriate(totalHours, selected);
+                                }
                             }
                         }
                     }
-                }
 
-                WriteScheduleListToDatabase(workingToday, selected, restaurant, month, i);
+                    WriteScheduleListToDatabase(workingToday, selected, restaurant, month, i);
+                }
             }
 
             db.SaveChanges();

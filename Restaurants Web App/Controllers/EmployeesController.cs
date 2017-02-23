@@ -36,6 +36,10 @@ namespace Restaurants.Controllers
         /// This method is used for ajax updating requests.
         /// It updates information about cooks in a database.
         /// </summary>
+        /// <remarks>
+        /// If a shift is not null, amount of working hours must not be set to more than 7
+        /// because there is only 7 hours in the shift.
+        /// </remarks>
         /// <param name="employee">An <see cref="Employee"> instance recieved from client</param>
         /// <returns>Json string with the "data" or "message" field depending on "success" field</returns>
         [HttpPost]
