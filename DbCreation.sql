@@ -12,14 +12,12 @@
 	CHECK (AmountOfWorkingHours >= 4 AND AmountOfWorkingHours <= 10),
 	CHECK ([Session] IN ('2/2', '5/2'))
 );
-GO
 
 
 CREATE TABLE dbo.Attestations (
 	Id INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
 	Specialization NVARCHAR(30) NOT NULL UNIQUE
 );
-GO
 
 
 CREATE TABLE dbo.EmployeeAttestations (
@@ -36,16 +34,14 @@ CREATE TABLE dbo.EmployeeAttestations (
 	ON UPDATE CASCADE
 	ON DELETE CASCADE
 );
-GO
 
 
 CREATE TABLE dbo.Restaurants (
 	Id INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
 );
-GO
 
 
-CREATE TABLE dbo.Schedule (
+CREATE TABLE dbo.Schedules (
 	Note INT IDENTITY(1, 1) PRIMARY KEY CLUSTERED,
 	RestaurantId INT NOT NULL,
 	[Date] DATE NOT NULL,
@@ -63,4 +59,3 @@ CREATE TABLE dbo.Schedule (
 	ON UPDATE CASCADE
 	ON DELETE CASCADE
 );
-GO
