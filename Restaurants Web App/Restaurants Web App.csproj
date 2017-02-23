@@ -110,7 +110,6 @@
     <Content Include="Content\css\header.css" />
     <Content Include="Content\css\menu.css" />
     <Content Include="Content\css\show.css" />
-    <Content Include="Content\word-art.gif" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\edit.js" />
     <Content Include="Web.config" />

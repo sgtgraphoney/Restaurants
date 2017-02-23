@@ -71,3 +71,8 @@ WHERE a.Id IN
 (SELECT Id
 FROM dbo.Attestations
 WHERE Id = e.AmountOfWorkingHours % 3 + 1 OR Id = ABS(CHECKSUM(NEWID())) % 4);
+
+
+UPDATE dbo.Employees
+SET [Shift] = NULL
+WHERE AmountOfWorkingHours > 7;

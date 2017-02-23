@@ -73,11 +73,7 @@ namespace Restaurants.Controllers
 
             if (request == "Составить")
             {
-                var old = from schedule in db.Schedules
-                          where schedule.Date.Month == month && schedule.RestaurantId == restaurantId
-                          select schedule;
-
-                db.Schedules.RemoveRange(old);
+                db.Schedules.RemoveRange(db.Schedules.Where(x => x.Date.Month == month));
                 db.SaveChanges();
 
                 GenerateSchedule(month, restaurantId);
@@ -189,16 +185,19 @@ namespace Restaurants.Controllers
                                 {
                                     selected.Remove(last);
                                     totalHours -= last.AmountOfWorkingHours;
-                                }                               
-
-                                next = workingToday.NextAppropriate(workingToday.IndexOf(last) + 1, totalHours, selected);
+                                    next = workingToday.NextAppropriate(workingToday.IndexOf(last) + 1, totalHours, selected);
+                                }
+                                else
+                                {
+                                    selected.Add(current);
+                                    totalHours += current.AmountOfWorkingHours;
+                                    break;
+                                }
+                                
                                 if (next == null)
                                 {
-                                    if (last != null)
-                                    {
-                                        selected.Add(last);
-                                        totalHours += last.AmountOfWorkingHours;
-                                    }                                    
+                                    selected.Add(last);
+                                    totalHours += last.AmountOfWorkingHours;                                  
 
                                     selected.Add(current);
                                     totalHours += current.AmountOfWorkingHours;
